@@ -11,6 +11,9 @@ name: CI
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      id-token: write # to enable use of OIDC for npm provenance
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 20.x
