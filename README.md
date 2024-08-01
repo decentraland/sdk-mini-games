@@ -4,7 +4,7 @@ This library provides utilities for managing player queues and active players in
 
 ## Exported Functions
 
-### initLibrary(_engine: IEngine, _syncEntity: typeof SyncEntityType,_playersApi: typeof players)`
+### initLibrary(_engine: IEngine, syncEntity: typeof syncEntity, playersApi: typeof players)`
 
 Initializes the library with the necessary dependencies. Returns listeners that can be overridden with callbacks.
 
@@ -44,6 +44,7 @@ You can override this listener to perform custom actions when the active player 
 
 ## Example
 ```typescript
+import { engine } from '@dcl/sdk/ecs'
 import { syncEntity } from '@dcl/sdk/network'
 import playersApi from '@dcl/sdk/players'
 import { initLibrary, listeners, addPlayer, isActive, getQueue, setNextPlayer } from './sdk-utils-player'

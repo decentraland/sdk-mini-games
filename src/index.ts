@@ -37,7 +37,7 @@ export const listeners: { onActivePlayerChange: (player: PlayerType) => void } =
   onActivePlayerChange: () => {}
 }
 /**
- * We need the engine as a param to avoid references to different engines
+ * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
  */
 export function initLibrary(_engine: IEngine, _syncEntity: typeof SyncEntityType, _playersApi: typeof players) {
