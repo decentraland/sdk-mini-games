@@ -56,8 +56,8 @@ initLibrary(engine, syncEntity, playersApi)
 listeners.onActivePlayerChange = (player) => {
   console.log(`New active player: ${player.address}`)
 }
-const startCube = createCube(2, 1, 2, true, 1)
-const finishCube = createCube(2, 4, 2, true, 2)
+const startCube = createCube(2, 1, 2)
+const finishCube = createCube(2, 4, 2)
 
 // Listen to changes on the queue
 listeners.onActivePlayerChange = (player) => {
