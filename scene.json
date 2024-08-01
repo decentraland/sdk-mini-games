@@ -1,0 +1,16 @@
+{
+	"ecs7": true,
+	"runtimeVersion": "7",
+	"display": {
+		"title": "SDK7 Players Queue",
+		"description": "SDK7 Library to handle Players Queue logic for Multiplayers Game",
+		"navmapThumbnail": "images/scene-thumbnail.png",
+		"favicon": "favicon_asset"
+	},
+	"main": "bin/index.js",
+	"tags": [],
+	"scene": {
+		"parcels": [ "0,0" ],
+		"base": "0,0"
+	}
+}
