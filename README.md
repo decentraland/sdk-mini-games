@@ -47,10 +47,10 @@ You can override this listener to perform custom actions when the active player 
 import { engine } from '@dcl/sdk/ecs'
 import { syncEntity } from '@dcl/sdk/network'
 import playersApi from '@dcl/sdk/players'
-import { initLibrary, listeners, addPlayer, isActive, getQueue, setNextPlayer } from './sdk-utils-player'
+import { initPlayersQueue, listeners, addPlayer, isActive, getQueue, setNextPlayer } from './sdk-utils-player'
 
 // Initialize the library
-initLibrary(engine, syncEntity, playersApi)
+initPlayersQueue(engine, syncEntity, playersApi)
 
 // Override the onActivePlayerChange listener
 listeners.onActivePlayerChange = (player) => {
@@ -65,7 +65,7 @@ listeners.onActivePlayerChange = (player) => {
 }
 
 // Add player to the queue
-pointerEventsSystem.onPointerDown({ entity: startCube, opts: { hoverText: 'Start game' } }, () => {
+pointerEventsSystem.onPointerDown({ entity: startCube, opts: { hoverText: 'Add player to queue' } }, () => {
   addPlayer()
 })
 

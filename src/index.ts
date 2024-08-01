@@ -11,7 +11,7 @@ export type PlayerType = {
 }
 
 /**
- * SDK methods that the library receives on the initLibrary
+ * SDK methods that the library receives on the initPlayersQueue
  */
 let engine: IEngine
 export let Player: MapComponentDefinition<MapResult<{
@@ -30,7 +30,7 @@ const queueLeaveScene: Map<string, number> = new Map()
 
 /**
  * Return listeners so they can be override with callbacks
- * const listeners = initLibrary()
+ * const listeners = initPlayersQueue()
  * listeners.onActivePlayerChange = (player) => player.address
  */
 export const listeners: { onActivePlayerChange: (player: PlayerType) => void } = {
@@ -40,7 +40,7 @@ export const listeners: { onActivePlayerChange: (player: PlayerType) => void } =
  * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
  */
-export function initLibrary(_engine: IEngine, _syncEntity: typeof SyncEntityType, _playersApi: typeof players) {
+export function initPlayersQueue(_engine: IEngine, _syncEntity: typeof SyncEntityType, _playersApi: typeof players) {
   engine = _engine
   Player = engine.defineComponent('sdk-utils/player:player', {
     address: Schemas.String,
