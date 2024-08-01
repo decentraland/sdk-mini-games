@@ -1,6 +1,6 @@
 import { Entity, ISchema, MapComponentDefinition, MapResult, PlayerIdentityData, Schemas } from '@dcl/sdk/ecs'
 import { type IEngine } from '@dcl/ecs'
-import players from '@dcl/sdk/players'
+import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
 export type PlayerType = {
@@ -50,7 +50,6 @@ export function initPlayersQueue(_engine: IEngine, _syncEntity: typeof SyncEntit
   })
   syncEntityApi = _syncEntity
   playersApi = _playersApi
-
   playersApi.onLeaveScene((userId: string) => {
     queueLeaveScene.set(userId, Date.now())
   })
