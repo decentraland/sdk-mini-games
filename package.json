@@ -1,0 +1,25 @@
+{
+  "name": "@dcl-sdk/players-queue",
+  "version": "1.0.0",
+  "description": "SDK7 Library to handle Players Queue logic for Multiplayers Game",
+  "scripts": {
+    "start": "sdk-commands start",
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "sdk-commands build",
+    "upgrade-sdk": "npm install --save-dev @dcl/sdk@latest",
+    "upgrade-sdk:next": "npm install --save-dev @dcl/sdk@next"
+  },
+  "devDependencies": {
+    "@dcl/js-runtime": "latest",
+    "@dcl/sdk": "latest"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120,
+    "trailingComma": "none"
+  },
+  "dependencies": {
+    "typescript": "^5.5.4"
+  }
+}
