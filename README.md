@@ -1,24 +1,82 @@
-# SDK7 Template Library
+# SDK Utils Player Library
 
-## Conecepts
+This library provides utilities for managing player queues and active players in a scene.
 
-### Engine Param
-You need to pass the engine so you reference always the same engine in the lib & in the scene.
+## Exported Functions
 
-### Components
-In order to use an ecs component, you need to import it and pass the engine, so both the library and the scene are talking about the same component instance.
-```ts
-import * as components from '@dcl/ecs/dist/components'
-const Transform = components.Transform(engine)
-Transform.getOrNull(entity)
+### initLibrary(_engine: IEngine, _syncEntity: typeof SyncEntityType,_playersApi: typeof players)`
+
+Initializes the library with the necessary dependencies. Returns listeners that can be overridden with callbacks.
+
+### setNextPlayer()
+
+Sets the next player in the queue as active and removes the current active player.
+
+### addPlayer()
+
+Adds the current player to the queue if they're not already in it.
+
+### isActive(): boolean
+
+Checks if the current user is the active player.
+
+### getQueue()
+
+Returns an array of players in the queue, sorted by join time.
+
+## Exported Types
+
+### PlayerType
+
+```typescript
+type PlayerType = {
+  address: string;
+  joinedAt: number;
+  startPlayingAt: number;
+  active: boolean;
+}
 ```
 
-### Publish
-Set your NPM_TOKEN on github secrets and the lib will automatically be deployed to npm registry.
-Be sure to set the package.json#name property with your library name.
-See .github/workflows/ci.yml file.
+## Exported Listeners
+### onActivePlayerChange: (player: PlayerType) => void
 
+You can override this listener to perform custom actions when the active player changes.
 
-### Development
-`npm run dev` to start the typescript compiler.
-`npm run start` to start the library as a scene.
+## Example
+```typescript
+import { syncEntity } from '@dcl/sdk/network'
+import playersApi from '@dcl/sdk/players'
+import { initLibrary, listeners, addPlayer, isActive, getQueue, setNextPlayer } from './sdk-utils-player'
+
+// Initialize the library
+initLibrary(engine, syncEntity, playersApi)
+
+// Override the onActivePlayerChange listener
+listeners.onActivePlayerChange = (player) => {
+  console.log(`New active player: ${player.address}`)
+}
+const startCube = createCube(2, 1, 2, true, 1)
+const finishCube = createCube(2, 4, 2, true, 2)
+
+// Listen to changes on the queue
+listeners.onActivePlayerChange = (player) => {
+  console.log('active player changed', player)
+}
+
+// Add player to the queue
+pointerEventsSystem.onPointerDown({ entity: startCube, opts: { hoverText: 'Start game' } }, () => {
+  addPlayer()
+})
+
+// Finish game and set the next player
+pointerEventsSystem.onPointerDown({ entity: finishCube, opts: { hoverText: 'Finish game'} }, () => {
+  setNextPlayer()
+})
+
+// Check if current player is active
+console.log(`Is current player active? ${isActive()}`);
+
+// Get the current Queue
+const queue = getQueue();
+console.log('Current queue:', queue);
+```
