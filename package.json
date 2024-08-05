@@ -1,5 +1,5 @@
 {
-  "name": "@dcl-sdk/players-queue",
+  "name": "@dcl-sdk/mini-games",
   "version": "1.0.0",
   "description": "SDK7 Library to handle Players Queue logic for Multiplayers Game",
   "scripts": {
