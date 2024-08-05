@@ -1,34 +1,16 @@
-import { Entity, ISchema, MapComponentDefinition, MapResult, PlayerIdentityData, Schemas } from '@dcl/sdk/ecs'
-import { type IEngine } from '@dcl/ecs'
-import type players from '@dcl/sdk/players'
-import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
+import { Entity, Schemas } from '@dcl/sdk/ecs'
+import { getSDK, Player, setPlayerComponent } from '../sdk'
 
+/** @public */
 export type PlayerType = {
-  address: string;
-  joinedAt: number;
+  address: string
+  joinedAt: number
   startPlayingAt: number
   active: boolean
 }
 
 /**
- * SDK methods that the library receives on the initPlayersQueue
- */
-let engine: IEngine
-export let Player: MapComponentDefinition<MapResult<{
-  address: ISchema<string>
-  joinedAt: ISchema<number>
-  startPlayingAt: ISchema<number>
-  active: ISchema<boolean>
-}>>
-let syncEntityApi: typeof SyncEntityType
-let playersApi: typeof players
-
-/**
- * Internal queue that checks if the user has left the scene for more than $TIMER seconds
- */
-// const queueLeaveScene: Map<string, number> = new Map()
-
-/**
+/** @public
  * Return listeners so they can be override with callbacks
  * const listeners = initPlayersQueue()
  * listeners.onActivePlayerChange = (player) => player.address
@@ -40,19 +22,18 @@ export const listeners: { onActivePlayerChange: (player: PlayerType) => void } =
  * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
  */
-export function initPlayersQueue(_engine: IEngine, _syncEntity: typeof SyncEntityType, _playersApi: typeof players) {
-  engine = _engine
-  Player = engine.defineComponent('sdk-utils/player:player', {
+export function initPlayersQueue() {
+  const { engine, players } = getSDK()
+  const playerComponent = engine.defineComponent('sdk-utils/player:player', {
     address: Schemas.String,
     joinedAt: Schemas.Int64,
     active: Schemas.Boolean,
     startPlayingAt: Schemas.Int64
   })
-  syncEntityApi = _syncEntity
 
-  playersApi = _playersApi
+  setPlayerComponent(playerComponent)
 
-  playersApi.onLeaveScene((userId: string) => {
+  players.onLeaveScene((userId: string) => {
     console.log('Player leave scene', userId)
     removePlayer(userId)
   })
@@ -60,8 +41,6 @@ export function initPlayersQueue(_engine: IEngine, _syncEntity: typeof SyncEntit
   engine.addSystem(internalPlayerSystem())
 
   // TODO: TIME LIMIT PER GAME (startPlayingAt - TIME_LIMIT)
-
-  return listeners
 }
 /**
  * Set current player as inactive, and grab the first of the queue
@@ -73,6 +52,7 @@ export function setNextPlayer() {
  * Add current player to the queue
  */
 export function addPlayer() {
+  const { engine, syncEntity } = getSDK()
   const userId = getUserId()
   if (!userId || isPlayerInQueue(userId)) {
     return
@@ -80,14 +60,14 @@ export function addPlayer() {
   const timestamp = Date.now()
   const entity = engine.addEntity()
   Player.create(entity, { address: userId, joinedAt: timestamp })
-  syncEntityApi(entity, [Player.componentId])
+  syncEntity(entity, [Player.componentId])
 }
 
 /**
  * Check's if the current user is active.
  */
 export function isActive(): boolean {
-  const [entity, player] = getActivePlayer()
+  const [_entity, player] = getActivePlayer()
   if (player) {
     return player.address === getUserId()
   }
@@ -98,8 +78,8 @@ export function isActive(): boolean {
  * Get queue of players ordered
  */
 export function getQueue() {
-  const queue = new Map<string, { player: PlayerType, entity: Entity }>()
-
+  const { engine } = getSDK()
+  const queue = new Map<string, { player: PlayerType; entity: Entity }>()
   for (const [entity, player] of engine.getEntitiesWith(Player)) {
     if (!queue.has(player.address)) {
       queue.set(player.address, { player, entity })
@@ -108,9 +88,8 @@ export function getQueue() {
     queue.set(player.address, { player, entity })
   }
 
-  return [...queue.values()].sort((a, b) => a.player.joinedAt < b.player.joinedAt ? -1 : 1)
+  return [...queue.values()].sort((a, b) => (a.player.joinedAt < b.player.joinedAt ? -1 : 1))
 }
-
 
 /**
  * ======== INTERNAL HELPERS ========
@@ -121,11 +100,14 @@ export function getQueue() {
  */
 let userId: string | undefined
 function getUserId() {
+  const { players } = getSDK()
+
   if (userId) return userId
-  return userId = playersApi.getPlayer()?.userId
+  return (userId = players.getPlayer()?.userId)
 }
 
 function _setNextPlayer(force?: boolean) {
+  const { engine } = getSDK()
   const [_, activePlayer] = getActivePlayer()
 
   if (!force && activePlayer?.address !== getUserId()) {
@@ -148,30 +130,19 @@ function _setNextPlayer(force?: boolean) {
   }
 }
 
-
 /**
  * Run a system every 4s that checks if a user has been disconnected
  * from the scene and removes it from the Queue.
-*/
+ */
 let lastActivePlayer: string
 function internalPlayerSystem() {
   let timer = 0
-  return function(dt: number) {
+  return function (dt: number) {
     timer += dt
     if (timer < 1) {
       return
     }
     timer = 0
-    // Listen to disconnected players
-    // const TIMER = 2000
-    // for (const [userId, leaveSceneAt] of queueLeaveScene) {
-    //   if (Date.now() - leaveSceneAt >= TIMER) {
-    //     if (!isPlayerConnected(userId)) {
-    //       removePlayer(userId)
-    //     }
-    //     queueLeaveScene.delete(userId)
-    //   }
-    // }
 
     const [_, activePlayer] = getActivePlayer()
 
@@ -191,23 +162,12 @@ function internalPlayerSystem() {
   }
 }
 
-
-/**
- * Check if player is still connected to the scene
- */
-function isPlayerConnected(userId: string) {
-  for (const [_, player] of engine.getEntitiesWith(PlayerIdentityData)) {
-    if (player.address === userId) {
-      return true
-    }
-  }
-  return false
-}
-
 /**
  * Check if the player is already in the Queue
  */
 function isPlayerInQueue(userId: string) {
+  const { engine } = getSDK()
+
   for (const [_, player] of engine.getEntitiesWith(Player)) {
     if (player.address === userId) {
       return true
@@ -221,6 +181,7 @@ function isPlayerInQueue(userId: string) {
  */
 function removePlayer(_userId?: string) {
   const userId = _userId ?? getUserId()
+  const { engine } = getSDK()
 
   if (!userId) {
     return
@@ -237,6 +198,8 @@ function removePlayer(_userId?: string) {
  * Get active player
  */
 function getActivePlayer(): [Entity, PlayerType] | [] {
+  const { engine } = getSDK()
+
   for (const [entity, player] of engine.getEntitiesWith(Player)) {
     if (player.active) {
       return [entity, player]

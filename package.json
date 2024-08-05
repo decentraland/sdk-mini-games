@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "SDK7 Library to handle Players Queue logic for Multiplayers Game",
   "scripts": {
-    "start": "sdk-commands start",
     "dev": "tsc -p tsconfig.json --watch",
-    "build": "sdk-commands build",
+    "build": "tsc -p tsconfig.json",
     "upgrade-sdk": "npm install --save-dev @dcl/sdk@latest",
-    "upgrade-sdk:next": "npm install --save-dev @dcl/sdk@next"
+    "upgrade-sdk:next": "npm install --save-dev @dcl/sdk@next",
+    "lint-fix": "eslint . --ext .ts,.tsx --fix",
+    "lint": "eslint . --ext .ts,.tsx",
+    "postinstall": "node scripts/postinstall.js"
   },
   "devDependencies": {
-    "@dcl/js-runtime": "latest",
-    "@dcl/sdk": "latest"
+    "@dcl/eslint-config": "^2.2.1",
+    "typescript": "^5.5.4"
   },
   "prettier": {
     "semi": false,
@@ -20,9 +22,10 @@
     "trailingComma": "none"
   },
   "dependencies": {
-    "typescript": "^5.5.4"
+    "@dcl/js-runtime": "latest",
+    "@dcl/sdk": "latest"
   },
   "repository": {
-    "url": "https://github.com/decentraland/sdk-players-queue"
+    "url": "https://github.com/decentraland/sdk-mini-games"
   }
 }

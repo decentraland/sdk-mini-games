@@ -1,13 +1,24 @@
-import { IEngine } from "@dcl/sdk/ecs";
-import type players from '@dcl/sdk/players'
+import { IEngine } from '@dcl/sdk/ecs'
+import type playersType from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
-import { initPlayersQueue } from './queue'
+import * as queue from './queue'
+import * as test from './test'
+import { setSDK } from './sdk'
 
 export type IConfig = {
   gameId: string
 }
 
-export function initLibrary(_engine: IEngine, _syncEntity: typeof SyncEntityType, _playersApi: typeof players, _config: IConfig) {
-  initPlayersQueue(_engine, _syncEntity, _playersApi)
+export let engine: IEngine
+export function initLibrary(
+  engine: IEngine,
+  syncEntity: typeof SyncEntityType,
+  players: typeof playersType,
+  config: IConfig
+) {
+  setSDK({ engine, syncEntity, players, config })
+  queue.initPlayersQueue()
 }
+export * from './sdk'
+export { queue, test }
