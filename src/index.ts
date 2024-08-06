@@ -8,7 +8,7 @@ import * as test from './test'
 import { setSDK } from './sdk'
 
 export type IConfig = {
-  gameId: string,
+  gameId: string
   environment: string
 }
 
