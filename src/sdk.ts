@@ -1,4 +1,5 @@
 import { IEngine, ISchema, MapComponentDefinition, MapResult } from '@dcl/sdk/ecs'
+import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 import { IConfig } from '.'
@@ -24,7 +25,12 @@ export function setSDK(value: typeof cache) {
  */
 export function getSDK() {
   if (!cache.engine) throw new Error('Call init library first.')
-  return { ...cache }
+  return {
+    ...cache,
+    Transform: components.Transform(cache.engine),
+    GltfContainer: components.GltfContainer(cache.engine)
+    // TODO: add all the components that we use here to reuse them
+  }
 }
 
 /**
