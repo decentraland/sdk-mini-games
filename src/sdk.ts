@@ -1,23 +1,27 @@
-import { IEngine, ISchema, MapComponentDefinition, MapResult } from '@dcl/sdk/ecs'
+import { createInputSystem, IEngine, IInputSystem, ISchema, MapComponentDefinition, MapResult } from '@dcl/sdk/ecs'
 import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 import { IConfig } from '.'
 
-const cache: {
+type ICache = {
   engine: IEngine
   syncEntity: typeof SyncEntityType
   players: typeof players
   config: IConfig
-} = {} as typeof cache
+  inputSystem: IInputSystem
+}
+
+const cache: ICache = {} as ICache
 
 /**
  * @internal
  */
-export function setSDK(value: typeof cache) {
+export function setSDK(value: Omit<ICache, 'inputSystem'>) {
   for (const key in value) {
     ;(cache as any)[key] = (value as any)[key]
   }
+  cache.inputSystem = createInputSystem(value.engine)
 }
 
 /**
@@ -28,7 +32,14 @@ export function getSDK() {
   return {
     ...cache,
     Transform: components.Transform(cache.engine),
-    GltfContainer: components.GltfContainer(cache.engine)
+    GltfContainer: components.GltfContainer(cache.engine),
+    AudioSource: components.AudioSource(cache.engine),
+    Material: components.Material(cache.engine),
+    MeshRenderer: components.MeshRenderer(cache.engine),
+    VisibilityComponent: components.VisibilityComponent(cache.engine),
+    TextShape: components.TextShape(cache.engine),
+    PointerEvents: components.PointerEvents(cache.engine),
+    Billboard: components.Billboard(cache.engine)
     // TODO: add all the components that we use here to reuse them
   }
 }

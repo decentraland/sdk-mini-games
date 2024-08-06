@@ -1,4 +1,3 @@
-import { GltfContainer as _GltfContainer, Transform as _Transform } from '@dcl/sdk/ecs'
 import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
 import { getSDK } from '../sdk'
