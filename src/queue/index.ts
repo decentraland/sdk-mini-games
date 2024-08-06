@@ -151,10 +151,21 @@ function internalPlayerSystem() {
 
     // TIMER for active player
     const { config } = getSDK()
-    if (config.gameTimeoutMs && activePlayer && isActive()) {
-      if (Date.now() - activePlayer.startPlayingAt >= config.gameTimeoutMs) {
-        setNextPlayer()
-      }
+    if (
+      // true Conditions
+      config.gameTimeoutMs &&
+      activePlayer &&
+      //
+      // I'm the player playnig
+      isActive() &&
+      //
+      // If you are the only player connected, keep playing.
+      getQueue().length > 1 &&
+      //
+      // Check if the time has passed
+      Date.now() - activePlayer.startPlayingAt >= config.gameTimeoutMs
+    ) {
+      setNextPlayer()
     }
   }
 }
