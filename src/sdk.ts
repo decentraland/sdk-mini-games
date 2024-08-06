@@ -39,7 +39,8 @@ export function getSDK() {
     VisibilityComponent: components.VisibilityComponent(cache.engine),
     TextShape: components.TextShape(cache.engine),
     PointerEvents: components.PointerEvents(cache.engine),
-    Billboard: components.Billboard(cache.engine)
+    Billboard: components.Billboard(cache.engine),
+    Tween: components.Tween(cache.engine)
     // TODO: add all the components that we use here to reuse them
   }
 }

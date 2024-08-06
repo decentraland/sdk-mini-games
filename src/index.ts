@@ -26,4 +26,6 @@ export function initLibrary(
   gameConfig.init()
 }
 export * from './sdk'
+export * as queueDisplay from './queueDisplay'
+export * as ui from './ui'
 export { queue }
