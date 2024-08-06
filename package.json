@@ -9,8 +9,7 @@
     "upgrade-sdk:next": "npm install --save-dev @dcl/sdk@next",
     "lint-fix": "eslint . --ext .ts,.tsx --fix",
     "lint": "eslint . --ext .ts,.tsx",
-    "postinstall": "node scripts/postinstall.js",
-    "prepare": "node scripts/postinstall.js"
+    "postinstall": "node scripts/postinstall.js"
   },
   "devDependencies": {
     "@dcl/eslint-config": "^2.2.1",
