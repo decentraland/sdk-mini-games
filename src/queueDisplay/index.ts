@@ -1,18 +1,5 @@
-import {
-  EasingFunction,
-  Entity,
-  GltfContainer,
-  Material,
-  MeshRenderer,
-  TextAlignMode,
-  TextShape,
-  Transform,
-  TransformType,
-  Tween,
-  VisibilityComponent
-} from '@dcl/sdk/ecs'
+import { EasingFunction, Entity, TextAlignMode, TransformType } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import { getPlayer } from '@dcl/sdk/src/players'
 import * as playersQueue from '../queue/index'
 import { getSDK } from '../sdk'
 
@@ -31,11 +18,12 @@ let myPosEntity: Entity
 let active = false
 let currentScreen: number
 const screensAtlas = 'mini-game-models/assets/scene/GameSigns.png'
+const frameModel = 'mini-game-models/assets/scene/workstation_display.glb'
 let timer = 0
 let timer2 = 0
 
 export function init(transform: TransformType) {
-  const { engine } = getSDK()
+  const { engine, Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent } = getSDK()
 
   currentScreen = SCREENS.addToQueue
   positionActive = transform
@@ -43,11 +31,10 @@ export function init(transform: TransformType) {
     ...transform,
     position: { ...transform.position, y: transform.position.y - 1 }
   }
-
   //FRAME
   frameEntity = engine.addEntity()
   Transform.createOrReplace(frameEntity, positionDisabled)
-  GltfContainer.create(frameEntity, { src: 'assets/scene/workstation_display.glb' })
+  GltfContainer.create(frameEntity, { src: frameModel })
 
   //screen
   displayEntity = engine.addEntity()
@@ -111,7 +98,7 @@ function getScreenUVs(screen: number): number[] {
 
 export function enable() {
   if (active) return
-  const { engine } = getSDK()
+  const { engine, Transform, Tween } = getSDK()
 
   active = true
   const { position } = Transform.get(frameEntity)
@@ -125,18 +112,23 @@ export function enable() {
     easingFunction: EasingFunction.EF_EASEOUTEXPO
   })
 
-  engine.addSystem((dt: number) => {
-    timer2 += dt
+  engine.addSystem(
+    (dt: number) => {
+      timer2 += dt
 
-    if (timer2 < 2) return
-    timer2 = 0
-    setScreen(SCREENS.queueList)
-  })
+      if (timer2 < 2) return
+      timer2 = 0
+      setScreen(SCREENS.queueList)
+      engine.removeSystem('delay2')
+    },
+    undefined,
+    'delay2'
+  )
 }
 
 export function disable() {
   if (!active) return
-  const { engine } = getSDK()
+  const { engine, Transform, Tween } = getSDK()
 
   active = false
   const { position } = Transform.get(frameEntity)
@@ -153,7 +145,7 @@ export function disable() {
 }
 
 export function setScreen(screenIndex: number) {
-  const { engine } = getSDK()
+  const { engine, VisibilityComponent, MeshRenderer } = getSDK()
 
   if (screenIndex === SCREENS.queueList) {
     engine.addSystem(updateListSystem)
@@ -168,6 +160,8 @@ export function setScreen(screenIndex: number) {
 }
 
 function updateListSystem(dt: number) {
+  const { players, VisibilityComponent, TextShape } = getSDK()
+
   timer += dt
   if (timer < 1) {
     return
@@ -175,8 +169,8 @@ function updateListSystem(dt: number) {
   timer = 0
 
   const playerQueue = playersQueue.getQueue()
-  const playerNames = playerQueue.map((item) => getPlayer({ userId: item.player.address })?.name).slice(1)
-  const myPos = playerQueue.findIndex((item) => item.player.address === getPlayer()?.userId)
+  const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
+  const myPos = playerQueue.findIndex((item) => item.player.address === players.getPlayer()?.userId)
 
   TextShape.createOrReplace(waitingListEntity, {
     text: playerNames.join('\n'),
