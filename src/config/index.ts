@@ -8,9 +8,25 @@ export enum GameIds {
     MEMORY_GRID = "",
     COLOR_POP = "" // Bubble Shooter
 }
+export enum DefaultEnv {
+    LOCAL = "local",
+    PRD = "prd"
+}
+
+const GAME_SERVER_CONFIG: Record<string, string> = {
+    "local": "https://exploration-games.decentraland.zone", //for local testing if you need different value
+    "prd": "https://exploration-games.decentraland.org", //PROD/live use this for launch
+}
+
+
 
 export let gameId: GameIds
+export let gameServer: string
 
-export function init(_gameId: GameIds) {
+export function init(_gameId: GameIds, env?: DefaultEnv) {
     gameId = _gameId
+
+    if(!env) env = DefaultEnv.LOCAL
+
+    gameServer = GAME_SERVER_CONFIG[env]
 }
