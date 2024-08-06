@@ -30,7 +30,7 @@ let waitingListEntity: Entity
 let myPosEntity: Entity
 let active = false
 let currentScreen: number
-const screensAtlas = 'assets/scene/GameSigns.png'
+const screensAtlas = 'mini-game-models/assets/scene/GameSigns.png'
 let timer = 0
 let timer2 = 0
 
