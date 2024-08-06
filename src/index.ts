@@ -4,6 +4,7 @@ import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
 import * as queue from './queue'
 import * as test from './test'
+import * as queueDisplay from './queueDisplay'
 import { setSDK } from './sdk'
 
 export type IConfig = {
@@ -21,4 +22,4 @@ export function initLibrary(
   queue.initPlayersQueue()
 }
 export * from './sdk'
-export { queue, test }
+export { queue, test, queueDisplay }
