@@ -172,6 +172,8 @@ function updateListSystem(dt: number) {
   const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
   const myPos = playerQueue.findIndex((item) => item.player.address === players.getPlayer()?.userId)
 
+  if (myPos === -1) disable()
+
   TextShape.createOrReplace(waitingListEntity, {
     text: playerNames.join('\n'),
     fontSize: 1.1,
