@@ -1,7 +1,6 @@
 import { Entity, Schemas } from '@dcl/sdk/ecs'
 import { getSDK, Player, setPlayerComponent } from '../sdk'
 
-/** @public */
 export type PlayerType = {
   address: string
   joinedAt: number
@@ -10,9 +9,6 @@ export type PlayerType = {
 }
 
 /**
-/** @public
- * Return listeners so they can be override with callbacks
- * const listeners = initPlayersQueue()
  * listeners.onActivePlayerChange = (player) => player.address
  */
 export const listeners: { onActivePlayerChange: (player: PlayerType) => void } = {
@@ -41,12 +37,6 @@ export function initPlayersQueue() {
   engine.addSystem(internalPlayerSystem())
 
   // TODO: TIME LIMIT PER GAME (startPlayingAt - TIME_LIMIT)
-}
-/**
- * Set current player as inactive, and grab the first of the queue
- */
-export function setNextPlayer() {
-  _setNextPlayer(false)
 }
 /**
  * Add current player to the queue
@@ -106,11 +96,12 @@ function getUserId() {
   return (userId = players.getPlayer()?.userId)
 }
 
-function _setNextPlayer(force?: boolean) {
+export function setNextPlayer() {
   const { engine } = getSDK()
   const [_, activePlayer] = getActivePlayer()
 
-  if (!force && activePlayer?.address !== getUserId()) {
+  // Only run this if you are the active player, or there is no one assigned
+  if (activePlayer && activePlayer.address !== getUserId()) {
     return
   }
 
@@ -119,6 +110,7 @@ function _setNextPlayer(force?: boolean) {
       removePlayer(player.address)
     }
   }
+
   const nextPlayer = getQueue()[0]
   if (nextPlayer && nextPlayer.player.address === getUserId()) {
     lastActivePlayer = nextPlayer.player.address
@@ -154,10 +146,26 @@ function internalPlayerSystem() {
 
     // Listen to changes in the queue and if there is no active player set it.
     if (!activePlayer) {
-      const nextPlayer = getQueue()[0]
-      if (nextPlayer && nextPlayer.player.address === getUserId()) {
-        _setNextPlayer(true)
-      }
+      setNextPlayer()
+    }
+
+    // TIMER for active player
+    const { config } = getSDK()
+    if (
+      // true Conditions
+      config.gameTimeoutMs &&
+      activePlayer &&
+      //
+      // I'm the player playnig
+      isActive() &&
+      //
+      // If you are the only player connected, keep playing.
+      getQueue().length > 1 &&
+      //
+      // Check if the time has passed
+      Date.now() - activePlayer.startPlayingAt >= config.gameTimeoutMs
+    ) {
+      setNextPlayer()
     }
   }
 }
