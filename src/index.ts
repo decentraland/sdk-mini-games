@@ -10,7 +10,8 @@ import { initEnvironment } from './environment'
 export type IConfig = {
   gameId: string
   environment: string
-  gameTimeoutMs?: number
+  gameTimeoutMs?: number,
+  sceneRotation?: number
 }
 
 export let engine: IEngine
@@ -29,3 +30,5 @@ export * from './sdk'
 export * as queueDisplay from './queueDisplay'
 export * as ui from './ui'
 export { queue }
+export { SCENE_PARENT } from './gameConfig'
+export * as utilities from './utilities'
