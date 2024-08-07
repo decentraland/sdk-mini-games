@@ -10,10 +10,10 @@ export function rotateVectorAroundCenter(vec: Vector3, vecCenter: Vector3, rot: 
 
 export function isVectorInsideArea(vec: Vector3, areaPt1: Vector3, areaPt2: Vector3){
     let minX = Math.min(areaPt1.x, areaPt2.x)
-    let maxX = Math.max(areaPt1.x, areaPt1.x)
+    let maxX = Math.max(areaPt1.x, areaPt2.x)
 
     let minZ = Math.min(areaPt1.z, areaPt2.z)
-    let maxZ = Math.max(areaPt1.z, areaPt1.z)
+    let maxZ = Math.max(areaPt1.z, areaPt2.z)
 
     return vec.x > minX && vec.x < maxX && vec.z > minZ && vec.z < maxZ
 }
