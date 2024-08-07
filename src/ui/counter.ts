@@ -106,38 +106,38 @@ export class Counter3D {
   getDigitMesh(digit: number): string {
     switch (digit) {
       case 0: {
-        return 'mini-game-models/assets/ui/numbers/number_0.glb'
+        return 'mini-game-assets/models/ui/numbers/number_0.glb'
       }
       case 1: {
-        return 'mini-game-models/assets/ui/numbers/number_1.glb'
+        return 'mini-game-assets/models/ui/numbers/number_1.glb'
       }
       case 2: {
-        return 'mini-game-models/assets/ui/numbers/number_2.glb'
+        return 'mini-game-assets/models/ui/numbers/number_2.glb'
       }
       case 3: {
-        return 'mini-game-models/assets/ui/numbers/number_3.glb'
+        return 'mini-game-assets/models/ui/numbers/number_3.glb'
       }
       case 4: {
-        return 'mini-game-models/assets/ui/numbers/number_4.glb'
+        return 'mini-game-assets/models/ui/numbers/number_4.glb'
       }
       case 5: {
-        return 'mini-game-models/assets/ui/numbers/number_5.glb'
+        return 'mini-game-assets/models/ui/numbers/number_5.glb'
       }
       case 6: {
-        return 'mini-game-models/assets/ui/numbers/number_6.glb'
+        return 'mini-game-assets/models/ui/numbers/number_6.glb'
       }
       case 7: {
-        return 'mini-game-models/assets/ui/numbers/number_7.glb'
+        return 'mini-game-assets/models/ui/numbers/number_7.glb'
       }
       case 8: {
-        return 'mini-game-models/assets/ui/numbers/number_8.glb'
+        return 'mini-game-assets/models/ui/numbers/number_8.glb'
       }
       case 9: {
-        return 'mini-game-models/assets/ui/numbers/number_9.glb'
+        return 'mini-game-assets/models/ui/numbers/number_9.glb'
       }
     }
 
-    return 'mini-game-models/assets/ui/numbers/number_0.glb'
+    return 'mini-game-assets/models/ui/numbers/number_0.glb'
   }
 
   show() {

@@ -98,7 +98,7 @@ export class MenuButton {
       if (inputSystem.isTriggered(InputAction.IA_POINTER, PointerEventType.PET_DOWN, this.button)) {
         if (this.enabled) {
           callback()
-          this.playSound('mini-game-models/sounds/button_click.mp3')
+          this.playSound('mini-game-assets/sounds/button_click.mp3')
           //flash the emissive of the icon
           Material.setPbrMaterial(this.icon, {
             texture: Material.Texture.Common({ src: uiAtlas }),
@@ -140,7 +140,7 @@ export class MenuButton {
             }
           )
         } else {
-          this.playSound('mini-game-models/sounds/wrong.mp3')
+          this.playSound('mini-game-assets/sounds/wrong.mp3')
         }
       }
     })
