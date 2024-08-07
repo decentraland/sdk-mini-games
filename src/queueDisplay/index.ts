@@ -1,7 +1,7 @@
 import { EasingFunction, Entity, TextAlignMode, TransformType } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import * as playersQueue from '../queue/index'
 import { getSDK } from '../sdk'
+import { queue } from '..'
 
 export enum SCREENS {
   addToQueue,
@@ -18,12 +18,13 @@ let myPosEntity: Entity
 let active = false
 let currentScreen: number
 const screensAtlas = 'mini-game-assets/images/GameSigns.png'
-const frameModel = 'mini-game-assets/models/workstation_display.glb'
+const frameModel = 'mini-game-assets/models/queueDisplay/workstation_display.glb'
 let timer = 0
 let timer2 = 0
+let showEnterScreen = true
 
 export function init(transform: TransformType) {
-  const { engine, Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent } = getSDK()
+  const { engine, Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent, players } = getSDK()
 
   currentScreen = SCREENS.addToQueue
   positionActive = transform
@@ -66,6 +67,44 @@ export function init(transform: TransformType) {
     rotation: Quaternion.fromEulerDegrees(0, 180, 0)
   })
   VisibilityComponent.create(myPosEntity, { visible: false })
+
+  let queueDisplayTimer = 0
+  engine.addSystem(
+    (dt: number) => {
+      queueDisplayTimer += dt
+
+      if (queueDisplayTimer < 0.25) return
+      queueDisplayTimer = 0
+
+      const playerInQueue = queue.getQueue().find((item) => item.player.address === players.getPlayer()?.userId)
+      if (playerInQueue) {
+        if (!queue.isActive()) {
+          enable()
+        } else if (showEnterScreen) {
+          showEnterScreen = false
+          setScreen(SCREENS.playNext)
+
+          //wait 2 sec and disable
+          let closeTimer = 2
+          engine.addSystem(
+            (dt: number) => {
+              closeTimer -= dt
+              if (closeTimer > 0) return
+              closeTimer = 2
+              disable()
+              engine.removeSystem('delayDisable')
+            },
+            undefined,
+            'delayDisable'
+          )
+        }
+      } else {
+        disable()
+      }
+    },
+    undefined,
+    'queueDisplaySystem'
+  )
 }
 
 function getScreenUVs(screen: number): number[] {
@@ -96,7 +135,7 @@ function getScreenUVs(screen: number): number[] {
   ]
 }
 
-export function enable() {
+function enable() {
   if (active) return
   const { engine, Transform, Tween } = getSDK()
 
@@ -126,11 +165,12 @@ export function enable() {
   )
 }
 
-export function disable() {
+function disable() {
   if (!active) return
   const { engine, Transform, Tween } = getSDK()
 
   active = false
+  showEnterScreen = true
   const { position } = Transform.get(frameEntity)
   Tween.createOrReplace(frameEntity, {
     mode: Tween.Mode.Move({
@@ -144,7 +184,7 @@ export function disable() {
   engine.removeSystem(updateListSystem)
 }
 
-export function setScreen(screenIndex: number) {
+function setScreen(screenIndex: number) {
   const { engine, VisibilityComponent, MeshRenderer } = getSDK()
 
   if (screenIndex === SCREENS.queueList) {
@@ -168,7 +208,7 @@ function updateListSystem(dt: number) {
   }
   timer = 0
 
-  const playerQueue = playersQueue.getQueue()
+  const playerQueue = queue.getQueue()
   const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
   const myPos = playerQueue.findIndex((item) => item.player.address === players.getPlayer()?.userId)
 
