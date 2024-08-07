@@ -17,8 +17,8 @@ let waitingListEntity: Entity
 let myPosEntity: Entity
 let active = false
 let currentScreen: number
-const screensAtlas = 'mini-game-models/assets/scene/GameSigns.png'
-const frameModel = 'mini-game-models/assets/scene/workstation_display.glb'
+const screensAtlas = 'mini-game-assets/images/GameSigns.png'
+const frameModel = 'mini-game-assets/models/workstation_display.glb'
 let timer = 0
 let timer2 = 0
 

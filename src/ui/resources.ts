@@ -32,77 +32,77 @@ function getUVs(row: number, startBlock: number, width: number): number[] {
   ]
 }
 // SCOREBOARD
-const scoreboardBackgroundLight = 'mini-game-models/assets/ui/scoreboard_bg.glb'
-const scoreboardBackgroundDark = 'mini-game-models/assets/ui/scoreboard_bg_dark.glb'
+const scoreboardBackgroundLight = 'mini-game-assets/models/ui/scoreboard_bg.glb'
+const scoreboardBackgroundDark = 'mini-game-assets/models/ui/scoreboard_bg_dark.glb'
 
 //BUTTONS
-const squareBase = 'mini-game-models/assets/ui/button_base_square.glb'
-const rectBase = 'mini-game-models/assets/ui/button_base_rectangle.glb'
+const squareBase = 'mini-game-assets/models/ui/button_base_square.glb'
+const rectBase = 'mini-game-assets/models/ui/button_base_rectangle.glb'
 
 const SQUARE_GREEN: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_green.glb',
+  shape: 'mini-game-assets/models/ui/button_square_green.glb',
   base: squareBase,
   isRect: false
 }
 const SQUARE_RED: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_red.glb',
+  shape: 'mini-game-assets/models/ui/button_square_red.glb',
   base: squareBase,
   isRect: false
 }
 const SQUARE_YELLOW: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_yellow.glb',
+  shape: 'mini-game-assets/models/ui/button_square_yellow.glb',
   base: squareBase,
   isRect: false
 }
 const SQUARE_PURPLE: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_purple.glb',
+  shape: 'mini-game-assets/models/ui/button_square_purple.glb',
   base: squareBase,
   isRect: false
 }
 const SQUARE_WHITE: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_white.glb',
+  shape: 'mini-game-assets/models/ui/button_square_white.glb',
   base: squareBase,
   isRect: false
 }
 const SQUARE_BLACK: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_square_black.glb',
+  shape: 'mini-game-assets/models/ui/button_square_black.glb',
   base: squareBase,
   isRect: false
 }
 
 const RECT_GREEN: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_green.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_green.glb',
   base: rectBase,
   isRect: true
 }
 const RECT_RED: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_red.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_red.glb',
   base: rectBase,
   isRect: true
 }
 const RECT_YELLOW: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_yellow.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_yellow.glb',
   base: rectBase,
   isRect: true
 }
 const RECT_PURPLE: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_purple.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_purple.glb',
   base: rectBase,
   isRect: true
 }
 const RECT_WHITE: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_white.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_white.glb',
   base: rectBase,
   isRect: true
 }
 const RECT_BLACK: ButtonShapeData = {
-  shape: 'mini-game-models/assets/ui/button_rectangle_black.glb',
+  shape: 'mini-game-assets/models/ui/button_rectangle_black.glb',
   base: rectBase,
   isRect: true
 }
 
 //UI atlas
-export const uiAtlas = 'mini-game-models/images/AtlasGames.png'
+export const uiAtlas = 'mini-game-assets/images/AtlasGames.png'
 
 //square icons
 const checkmark: IconData = { uvs: getUVs(0, 0, 1), blockWidth: 1 }

@@ -13,7 +13,7 @@ export class InstructionsBoard {
   height: number = 3.65
   width: number = 6.3
 
-  constructor(transform: TransformTypeWithOptionals, width: number, height: number) {
+  constructor(transform: TransformTypeWithOptionals, width: number, height: number, texturePath:string) {
     const { engine, Transform, MeshRenderer, Material } = getSDK()
     this.width = width
     this.height = height
@@ -23,7 +23,7 @@ export class InstructionsBoard {
     this.textures = []
     // TODO: this instructions should be passed as an argument.
     // or keep this name and each scene MUST create that file with the following name.
-    this.textures.push('mini-game-models/images/instructions.png')
+    this.textures.push(texturePath)
 
     this.board = engine.addEntity()
     Transform.create(this.board, {

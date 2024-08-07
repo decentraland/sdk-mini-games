@@ -29,7 +29,7 @@ export class WinAnimationHandler {
     this.winAnimB = engine.addEntity()
 
     GltfContainer.create(this.winAnimB, {
-      src: 'mini-game-models/assets/scene/winAnim.glb'
+      src: 'mini-game-assets/models/winAnim.glb'
     })
     VisibilityComponent.create(this.winAnimB, { visible: false })
 
@@ -43,7 +43,7 @@ export class WinAnimationHandler {
     this.winAnimC = engine.addEntity()
 
     GltfContainer.create(this.winAnimC, {
-      src: 'mini-game-models/assets/scene/winAnim.glb'
+      src: 'mini-game-assets/models/winAnim.glb'
     })
 
     Transform.create(this.winAnimC, {
@@ -57,7 +57,7 @@ export class WinAnimationHandler {
     this.winAnimFollow = engine.addEntity()
 
     GltfContainer.create(this.winAnimFollow, {
-      src: 'mini-game-models/assets/scene/winAnimFollow.glb'
+      src: 'mini-game-assets/models/winAnimFollow.glb'
     })
 
     Transform.create(this.winAnimFollow, {
@@ -72,7 +72,7 @@ export class WinAnimationHandler {
     this.winAnimText = engine.addEntity()
 
     GltfContainer.create(this.winAnimText, {
-      src: 'mini-game-models/assets/scene/winAnimText.glb'
+      src: 'mini-game-assets/models/winAnimText.glb'
     })
 
     Transform.create(this.winAnimText, {

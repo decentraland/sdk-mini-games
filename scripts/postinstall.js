@@ -1,8 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
-const sourceDir = path.join(__dirname, '..', 'mini-game-models')
-const destDir = path.join(process.cwd(), 'mini-game-models')
+const sourceDir = path.join(__dirname, '..', 'mini-game-assets')
+const destDir = path.join(process.cwd(), 'mini-game-assets')
 const packageJson = require('../package.json')
 
 console.log('running postinstall')

@@ -9,5 +9,5 @@ export function initEnvironment() {
     position: Vector3.create(8, 0, 8),
     rotation: Quaternion.fromEulerDegrees(0, 180, 0)
   })
-  GltfContainer.create(environment, { src: 'mini-games-models/environment.glb' })
+  GltfContainer.create(environment, { src: 'mini-games-assets/models/environment.glb' })
 }
