@@ -10,7 +10,7 @@ import { initEnvironment } from './environment'
 export type IConfig = {
   gameId: string
   environment: string
-  gameTimeoutMs?: number,
+  gameTimeoutMs?: number
   sceneRotation?: number
 }
 
