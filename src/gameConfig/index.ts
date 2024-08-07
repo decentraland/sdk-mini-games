@@ -18,7 +18,7 @@ export let SCENE_PARENT: Entity
 
 export function init() {
   const { config, engine, Transform } = getSDK()
-  
+
   GAME_ID = config.gameId
   let _env = config.environment
 
@@ -29,7 +29,7 @@ export function init() {
   SCENE_PARENT = engine.addEntity()
   Transform.create(SCENE_PARENT, {
     position: Vector3.create(8, 0, 8),
-    rotation: Quaternion.fromEulerDegrees(0, config.sceneRotation ? config.sceneRotation  : 0, 0),
+    rotation: Quaternion.fromEulerDegrees(0, config.sceneRotation ? config.sceneRotation : 0, 0),
     scale: Vector3.One()
   })
 }
