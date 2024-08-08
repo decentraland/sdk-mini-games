@@ -22,8 +22,10 @@ const frameModel = 'mini-game-assets/models/queueDisplay/workstation_display.glb
 let timer = 0
 let timer2 = 0
 let showEnterScreen = true
-
+let initialized = false
 export function init(transform: TransformType) {
+  if (initialized) return
+  initialized = true
   const {
     engine,
     components: { Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent },
