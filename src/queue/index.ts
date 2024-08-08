@@ -23,19 +23,13 @@ let initializedQueue = false
 export function startPlayersQueue() {
   if (initializedQueue) return
   initializedQueue = true
-  const { engine, players, config } = getSDK()
-
-  if (config.queueDisplay) {
-    queueDisplay.init(config.queueDisplay)
-  }
-
+  const { engine, players } = getSDK()
   players.onLeaveScene((userId: string) => {
     console.log('Player leave scene', userId)
     removePlayer(userId)
   })
 
   engine.addSystem(internalPlayerSystem())
-  // TODO: TIME LIMIT PER GAME (startPlayingAt - TIME_LIMIT)
 }
 /**
  * Add current player to the queue
@@ -44,12 +38,19 @@ export function addPlayer() {
   const {
     engine,
     syncEntity,
-    components: { Player }
+    components: { Player },
+    config
   } = getSDK()
+
   const userId = getUserId()
   if (!userId || isPlayerInQueue(userId)) {
     return
   }
+
+  if (config.queueDisplay) {
+    queueDisplay.init(config.queueDisplay)
+  }
+
   const timestamp = Date.now()
   const entity = engine.addEntity()
   Player.create(entity, { address: userId, joinedAt: timestamp })
