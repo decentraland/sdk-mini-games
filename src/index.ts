@@ -1,4 +1,4 @@
-import { IEngine, TransformType } from '@dcl/sdk/ecs'
+import { IEngine } from '@dcl/sdk/ecs'
 import type playersType from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
@@ -12,7 +12,6 @@ export type IOptions = {
   environment: string
   gameTimeoutMs?: number
   sceneRotation?: number
-  queueDisplay?: TransformType
 }
 
 export let engine: IEngine

@@ -23,7 +23,8 @@ let timer = 0
 let timer2 = 0
 let showEnterScreen = true
 let initialized = false
-export function init(transform: TransformType) {
+
+export function initQueueDisplay(transform: TransformType) {
   if (initialized) return
   initialized = true
   const {
@@ -248,5 +249,3 @@ function updateListSystem(dt: number) {
   VisibilityComponent.getMutable(waitingListEntity).visible = true
   VisibilityComponent.getMutable(myPosEntity).visible = true
 }
-
-export default init

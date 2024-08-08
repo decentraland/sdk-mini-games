@@ -1,6 +1,6 @@
 import { Entity } from '@dcl/sdk/ecs'
+import { initQueueDisplay } from './display'
 import { getSDK } from '../sdk'
-import * as queueDisplay from './display'
 
 export type PlayerType = {
   address: string
@@ -9,6 +9,7 @@ export type PlayerType = {
   active: boolean
 }
 
+export { initQueueDisplay }
 /**
  * listeners.onActivePlayerChange = (player) => player.address
  */
@@ -38,17 +39,12 @@ export function addPlayer() {
   const {
     engine,
     syncEntity,
-    components: { Player },
-    config
+    components: { Player }
   } = getSDK()
 
   const userId = getUserId()
   if (!userId || isPlayerInQueue(userId)) {
     return
-  }
-
-  if (config.queueDisplay) {
-    queueDisplay.init(config.queueDisplay)
   }
 
   const timestamp = Date.now()
