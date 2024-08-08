@@ -2,8 +2,11 @@ import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
 import { getSDK } from '../sdk'
 
-export function initEnvironment() {
-  const { engine, Transform, GltfContainer } = getSDK()
+export function addEnvironment() {
+  const {
+    engine,
+    components: { Transform, GltfContainer }
+  } = getSDK()
   const environment = engine.addEntity()
   Transform.create(environment, {
     position: Vector3.create(8, 0, 8),

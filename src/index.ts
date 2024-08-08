@@ -1,17 +1,18 @@
-import { IEngine } from '@dcl/sdk/ecs'
+import { IEngine, TransformType } from '@dcl/sdk/ecs'
 import type playersType from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
-import * as queue from './queue'
-import * as gameConfig from './gameConfig'
+import { startPlayersQueue } from './queue'
+import * as gameConfig from './config'
 import { setSDK } from './sdk'
-import { initEnvironment } from './environment'
+import { addEnvironment } from './environment'
 
-export type IConfig = {
+export type IOptions = {
   gameId: string
   environment: string
   gameTimeoutMs?: number
   sceneRotation?: number
+  queueDisplay?: TransformType
 }
 
 export let engine: IEngine
@@ -19,16 +20,15 @@ export function initLibrary(
   engine: IEngine,
   syncEntity: typeof SyncEntityType,
   players: typeof playersType,
-  config: IConfig
+  options: IOptions
 ) {
-  setSDK({ engine, syncEntity, players, config })
-  initEnvironment()
-  queue.initPlayersQueue()
+  setSDK({ engine, syncEntity, players, config: options })
+  addEnvironment()
+  startPlayersQueue()
   gameConfig.init()
 }
-export * from './sdk'
-export * as queueDisplay from './queueDisplay'
+
 export * as ui from './ui'
-export { queue }
-export { SCENE_PARENT } from './gameConfig'
+export * as queue from './queue'
+export { sceneParentEntity } from './config'
 export * as utilities from './utilities'

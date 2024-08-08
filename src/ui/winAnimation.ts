@@ -11,7 +11,10 @@ export class WinAnimationHandler {
   winAnimText: Entity
 
   constructor(pos: Vector3) {
-    const { engine, Transform, Billboard, VisibilityComponent, GltfContainer } = getSDK()
+    const {
+      engine,
+      components: { Transform, Billboard, VisibilityComponent, GltfContainer }
+    } = getSDK()
     this.winAnimRoot = engine.addEntity()
     Transform.create(this.winAnimRoot, {
       position: pos,
@@ -86,7 +89,9 @@ export class WinAnimationHandler {
   }
 
   playWinAnimation() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     VisibilityComponent.getMutable(this.winAnimA).visible = true
     VisibilityComponent.getMutable(this.winAnimB).visible = true
     VisibilityComponent.getMutable(this.winAnimC).visible = true
@@ -95,7 +100,9 @@ export class WinAnimationHandler {
   }
 
   hide() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     VisibilityComponent.getMutable(this.winAnimA).visible = false
     VisibilityComponent.getMutable(this.winAnimB).visible = false
     VisibilityComponent.getMutable(this.winAnimC).visible = false

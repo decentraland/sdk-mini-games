@@ -31,14 +31,9 @@ export class MenuButton {
     enabledByDefault?: boolean
   ) {
     const {
-      Material,
-      MeshRenderer,
       engine,
-      Transform,
-      GltfContainer,
-      PointerEvents,
       inputSystem,
-      VisibilityComponent
+      components: { Material, MeshRenderer, Transform, GltfContainer, PointerEvents, VisibilityComponent }
     } = getSDK()
 
     this.enabled = true
@@ -181,7 +176,9 @@ export class MenuButton {
   }
 
   changeIcon(iconData: IconData) {
-    const { MeshRenderer, Material, Transform } = getSDK()
+    const {
+      components: { MeshRenderer, Material, Transform }
+    } = getSDK()
     MeshRenderer.setPlane(this.icon, iconData.uvs)
     Material.setPbrMaterial(this.icon, {
       texture: Material.Texture.Common({ src: uiAtlas }),
@@ -202,7 +199,9 @@ export class MenuButton {
   }
 
   playSound(sound: string) {
-    const { AudioSource } = getSDK()
+    const {
+      components: { AudioSource }
+    } = getSDK()
     AudioSource.createOrReplace(this.button, {
       audioClipUrl: sound,
       loop: false,
@@ -212,14 +211,18 @@ export class MenuButton {
   }
 
   enable() {
-    const { GltfContainer, Material } = getSDK()
+    const {
+      components: { GltfContainer, Material }
+    } = getSDK()
     this.enabled = true
     GltfContainer.createOrReplace(this.button, { src: this.buttonShapeEnabled.shape })
     Material.setPbrMaterial(this.icon, this.iconGlowMat)
   }
 
   disable() {
-    const { GltfContainer, Material } = getSDK()
+    const {
+      components: { GltfContainer, Material }
+    } = getSDK()
 
     this.enabled = false
     GltfContainer.createOrReplace(this.button, { src: this.buttonShapeDisabled.shape })

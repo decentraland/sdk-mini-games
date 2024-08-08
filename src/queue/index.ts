@@ -1,5 +1,6 @@
-import { Entity, Schemas } from '@dcl/sdk/ecs'
-import { getSDK, Player, setPlayerComponent } from '../sdk'
+import { Entity } from '@dcl/sdk/ecs'
+import { getSDK } from '../sdk'
+import * as queueDisplay from './display'
 
 export type PlayerType = {
   address: string
@@ -14,20 +15,19 @@ export type PlayerType = {
 export const listeners: { onActivePlayerChange: (player: PlayerType) => void } = {
   onActivePlayerChange: () => {}
 }
+let initializedQueue = false
 /**
  * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
  */
-export function initPlayersQueue() {
-  const { engine, players } = getSDK()
-  const playerComponent = engine.defineComponent('sdk-utils/player:player', {
-    address: Schemas.String,
-    joinedAt: Schemas.Int64,
-    active: Schemas.Boolean,
-    startPlayingAt: Schemas.Int64
-  })
+export function startPlayersQueue() {
+  if (initializedQueue) return
+  initializedQueue = true
+  const { engine, players, config } = getSDK()
 
-  setPlayerComponent(playerComponent)
+  if (config.queueDisplay) {
+    queueDisplay.init(config.queueDisplay)
+  }
 
   players.onLeaveScene((userId: string) => {
     console.log('Player leave scene', userId)
@@ -35,14 +35,17 @@ export function initPlayersQueue() {
   })
 
   engine.addSystem(internalPlayerSystem())
-
   // TODO: TIME LIMIT PER GAME (startPlayingAt - TIME_LIMIT)
 }
 /**
  * Add current player to the queue
  */
 export function addPlayer() {
-  const { engine, syncEntity } = getSDK()
+  const {
+    engine,
+    syncEntity,
+    components: { Player }
+  } = getSDK()
   const userId = getUserId()
   if (!userId || isPlayerInQueue(userId)) {
     return
@@ -68,7 +71,10 @@ export function isActive(): boolean {
  * Get queue of players ordered
  */
 export function getQueue() {
-  const { engine } = getSDK()
+  const {
+    engine,
+    components: { Player }
+  } = getSDK()
   const queue = new Map<string, { player: PlayerType; entity: Entity }>()
   for (const [entity, player] of engine.getEntitiesWith(Player)) {
     if (!queue.has(player.address)) {
@@ -97,7 +103,10 @@ function getUserId() {
 }
 
 export function setNextPlayer() {
-  const { engine } = getSDK()
+  const {
+    engine,
+    components: { Player }
+  } = getSDK()
   const [_, activePlayer] = getActivePlayer()
 
   // Only run this if you are the active player, or there is no one assigned
@@ -174,7 +183,10 @@ function internalPlayerSystem() {
  * Check if the player is already in the Queue
  */
 function isPlayerInQueue(userId: string) {
-  const { engine } = getSDK()
+  const {
+    engine,
+    components: { Player }
+  } = getSDK()
 
   for (const [_, player] of engine.getEntitiesWith(Player)) {
     if (player.address === userId) {
@@ -189,7 +201,10 @@ function isPlayerInQueue(userId: string) {
  */
 function removePlayer(_userId?: string) {
   const userId = _userId ?? getUserId()
-  const { engine } = getSDK()
+  const {
+    engine,
+    components: { Player }
+  } = getSDK()
 
   if (!userId) {
     return
@@ -206,7 +221,10 @@ function removePlayer(_userId?: string) {
  * Get active player
  */
 function getActivePlayer(): [Entity, PlayerType] | [] {
-  const { engine } = getSDK()
+  const {
+    engine,
+    components: { Player }
+  } = getSDK()
 
   for (const [entity, player] of engine.getEntitiesWith(Player)) {
     if (player.active) {

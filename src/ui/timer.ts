@@ -16,7 +16,10 @@ export class Timer3D {
     paddingWithZeroes: boolean,
     id: number
   ) {
-    const { engine, Transform } = getSDK()
+    const {
+      engine,
+      components: { Transform }
+    } = getSDK()
     this.root = engine.addEntity()
     Transform.create(this.root, transform)
 
@@ -57,7 +60,9 @@ export class Timer3D {
   }
 
   setTimeAnimated(_seconds: number, interpolation: utils.InterpolationType) {
-    const { Transform } = getSDK()
+    const {
+      components: { Transform }
+    } = getSDK()
     const minutes = Math.floor(_seconds / 60)
     const remainingSeconds = _seconds % 60
     const seconds = Math.floor(remainingSeconds)

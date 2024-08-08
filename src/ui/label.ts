@@ -9,7 +9,10 @@ export class MenuLabel {
   iconGlowMat: PBMaterial_PbrMaterial
 
   constructor(transform: TransformTypeWithOptionals, icon: IconData) {
-    const { engine, Transform, MeshRenderer, Material, VisibilityComponent } = getSDK()
+    const {
+      engine,
+      components: { Transform, MeshRenderer, Material, VisibilityComponent }
+    } = getSDK()
     this.root = engine.addEntity()
     Transform.create(this.root, transform)
 
@@ -44,7 +47,9 @@ export class MenuLabel {
   }
 
   changeIcon(iconData: IconData) {
-    const { Transform, MeshRenderer, Material } = getSDK()
+    const {
+      components: { Transform, MeshRenderer, Material }
+    } = getSDK()
     MeshRenderer.setPlane(this.icon, iconData.uvs)
     Material.setPbrMaterial(this.icon, {
       texture: Material.Texture.Common({ src: uiAtlas }),
@@ -65,12 +70,16 @@ export class MenuLabel {
   }
 
   show() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     VisibilityComponent.getMutable(this.icon).visible = true
   }
 
   hide() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     VisibilityComponent.getMutable(this.icon).visible = false
   }
 }

@@ -48,7 +48,9 @@ export const POINTS_TIME: ColumnData = {
 }
 
 export function addHeaderText(entity: Entity, text: string, fontSize: number, align: TextAlignMode) {
-  const { TextShape } = getSDK()
+  const {
+    components: { TextShape }
+  } = getSDK()
 
   TextShape.createOrReplace(entity, {
     text: text,
@@ -69,7 +71,10 @@ export class HeaderRow {
   levelHeader?: Entity
 
   constructor(columnData: ColumnData, width: number, height: number, parent: Entity, fontSize: number) {
-    const { engine, Transform } = getSDK()
+    const {
+      engine,
+      components: { Transform }
+    } = getSDK()
 
     this.nameHeader = engine.addEntity()
     Transform.create(this.nameHeader, {

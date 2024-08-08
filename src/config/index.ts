@@ -12,24 +12,26 @@ const GAME_SERVER_CONFIG: Record<string, string> = {
   prd: 'https://exploration-games.decentraland.org' //PROD/live use this for launch
 }
 
-export let GAME_ID: string
 export let GAME_SERVER: string
-export let SCENE_PARENT: Entity
+export let sceneParentEntity: Entity
 
 export function init() {
-  const { config, engine, Transform } = getSDK()
+  const {
+    config,
+    engine,
+    components: { Transform }
+  } = getSDK()
 
-  GAME_ID = config.gameId
   let _env = config.environment
 
   if (_env !== ENV.PRD) _env = ENV.DEV
 
   GAME_SERVER = GAME_SERVER_CONFIG[_env]
 
-  SCENE_PARENT = engine.addEntity()
-  Transform.create(SCENE_PARENT, {
+  sceneParentEntity = engine.addEntity()
+  Transform.create(sceneParentEntity, {
     position: Vector3.create(8, 0, 8),
-    rotation: Quaternion.fromEulerDegrees(0, config.sceneRotation ? config.sceneRotation : 0, 0),
+    rotation: Quaternion.fromEulerDegrees(0, config.sceneRotation ?? 0, 0),
     scale: Vector3.One()
   })
 }
