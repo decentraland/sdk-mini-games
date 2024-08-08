@@ -14,7 +14,10 @@ export class InstructionsBoard {
   width: number = 6.3
 
   constructor(transform: TransformTypeWithOptionals, width: number, height: number, texturePath: string) {
-    const { engine, Transform, MeshRenderer, Material } = getSDK()
+    const {
+      engine,
+      components: { Transform, MeshRenderer, Material }
+    } = getSDK()
     this.width = width
     this.height = height
     this.boardRoot = engine.addEntity()

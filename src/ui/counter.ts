@@ -38,7 +38,10 @@ export class Counter3D {
     zeroPadding: boolean,
     id: number
   ) {
-    const { engine, Transform } = getSDK()
+    const {
+      engine,
+      components: { Transform }
+    } = getSDK()
     this.root = engine.addEntity()
     Transform.create(this.root, transform)
     this.spacing = digitSpacing
@@ -50,7 +53,10 @@ export class Counter3D {
     this.addDigits()
   }
   addDigits() {
-    const { engine, Transform, GltfContainer, VisibilityComponent } = getSDK()
+    const {
+      engine,
+      components: { Transform, GltfContainer, VisibilityComponent }
+    } = getSDK()
     for (let i = 0; i < this.maxDigits; i++) {
       const numberEntity = engine.addEntity()
       Transform.createOrReplace(numberEntity, {
@@ -65,7 +71,9 @@ export class Counter3D {
   }
 
   setNumber(_number: number) {
-    const { GltfContainer } = getSDK()
+    const {
+      components: { GltfContainer }
+    } = getSDK()
 
     this.currentNumber = _number
 
@@ -141,13 +149,17 @@ export class Counter3D {
   }
 
   show() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     for (const digit of this.digits) {
       VisibilityComponent.getMutable(digit).visible = true
     }
   }
   hide() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     for (const digit of this.digits) {
       VisibilityComponent.getMutable(digit).visible = false
     }

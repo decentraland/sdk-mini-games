@@ -19,7 +19,10 @@ export class BoxIcon {
       this.enabled = enabledByDefault
     }
 
-    const { engine, Transform, GltfContainer, MeshRenderer, Material, VisibilityComponent } = getSDK()
+    const {
+      engine,
+      components: { Transform, GltfContainer, MeshRenderer, Material, VisibilityComponent }
+    } = getSDK()
     //BUTTON
     this.box = engine.addEntity()
     Transform.createOrReplace(this.box, transform)
@@ -47,7 +50,9 @@ export class BoxIcon {
   }
 
   changeIcon(iconData: IconData) {
-    const { Transform, MeshRenderer, Material } = getSDK()
+    const {
+      components: { Transform, MeshRenderer, Material }
+    } = getSDK()
     MeshRenderer.setPlane(this.icon, iconData.uvs)
     Material.setPbrMaterial(this.icon, {
       texture: Material.Texture.Common({ src: uiAtlas }),
@@ -67,12 +72,16 @@ export class BoxIcon {
     })
   }
   changeShape(shapeData: ButtonShapeData) {
-    const { GltfContainer } = getSDK()
+    const {
+      components: { GltfContainer }
+    } = getSDK()
     GltfContainer.createOrReplace(this.box, { src: shapeData.shape })
   }
 
   playSound(sound: string) {
-    const { AudioSource } = getSDK()
+    const {
+      components: { AudioSource }
+    } = getSDK()
     AudioSource.createOrReplace(this.box, {
       audioClipUrl: sound,
       loop: false,
@@ -90,13 +99,17 @@ export class BoxIcon {
   }
 
   show() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
     VisibilityComponent.getMutable(this.box).visible = true
     VisibilityComponent.getMutable(this.icon).visible = true
   }
 
   hide() {
-    const { VisibilityComponent } = getSDK()
+    const {
+      components: { VisibilityComponent }
+    } = getSDK()
 
     VisibilityComponent.getMutable(this.box).visible = false
     VisibilityComponent.getMutable(this.icon).visible = false

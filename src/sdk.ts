@@ -1,8 +1,9 @@
-import { createInputSystem, IEngine, IInputSystem, ISchema, MapComponentDefinition, MapResult } from '@dcl/sdk/ecs'
+import { createInputSystem, IEngine, IInputSystem, Schemas } from '@dcl/sdk/ecs'
 import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 import { IConfig } from '.'
+import { Player as PlayerComponent, setPlayerComponent } from './components/Player'
 
 type ICache = {
   engine: IEngine
@@ -10,6 +11,19 @@ type ICache = {
   players: typeof players
   config: IConfig
   inputSystem: IInputSystem
+  components: {
+    Transform: ReturnType<typeof components.Transform>
+    GltfContainer: ReturnType<typeof components.GltfContainer>
+    AudioSource: ReturnType<typeof components.AudioSource>
+    Material: ReturnType<typeof components.Material>
+    MeshRenderer: ReturnType<typeof components.MeshRenderer>
+    VisibilityComponent: ReturnType<typeof components.VisibilityComponent>
+    TextShape: ReturnType<typeof components.TextShape>
+    PointerEvents: ReturnType<typeof components.PointerEvents>
+    Billboard: ReturnType<typeof components.Billboard>
+    Tween: ReturnType<typeof components.Tween>
+    Player: typeof PlayerComponent
+  }
 }
 
 const cache: ICache = {} as ICache
@@ -17,20 +31,14 @@ const cache: ICache = {} as ICache
 /**
  * @internal
  */
-export function setSDK(value: Omit<ICache, 'inputSystem'>) {
+export function setSDK(value: Omit<ICache, 'inputSystem' | 'components'>) {
   for (const key in value) {
     ;(cache as any)[key] = (value as any)[key]
   }
-  cache.inputSystem = createInputSystem(value.engine)
-}
 
-/**
- * @internal
- */
-export function getSDK() {
-  if (!cache.engine) throw new Error('Call init library first.')
-  return {
-    ...cache,
+  cache.inputSystem = createInputSystem(value.engine)
+
+  cache.components = {
     Transform: components.Transform(cache.engine),
     GltfContainer: components.GltfContainer(cache.engine),
     AudioSource: components.AudioSource(cache.engine),
@@ -40,26 +48,22 @@ export function getSDK() {
     TextShape: components.TextShape(cache.engine),
     PointerEvents: components.PointerEvents(cache.engine),
     Billboard: components.Billboard(cache.engine),
-    Tween: components.Tween(cache.engine)
-    // TODO: add all the components that we use here to reuse them
+    Tween: components.Tween(cache.engine),
+    Player: value.engine.defineComponent('sdk-utils/player:player', {
+      address: Schemas.String,
+      joinedAt: Schemas.Int64,
+      active: Schemas.Boolean,
+      startPlayingAt: Schemas.Int64
+    })
   }
+
+  setPlayerComponent(cache.components.Player)
 }
 
 /**
- * @public
- * SDK methods that the library receives on the initPlayersQueue
- */
-export let Player: MapComponentDefinition<
-  MapResult<{
-    address: ISchema<string>
-    joinedAt: ISchema<number>
-    startPlayingAt: ISchema<number>
-    active: ISchema<boolean>
-  }>
->
-/**
  * @internal
  */
-export function setPlayerComponent(playerComponent: typeof Player) {
-  Player = playerComponent
+export function getSDK() {
+  if (!cache.engine) throw new Error('Call init library first.')
+  return { ...cache }
 }

@@ -17,7 +17,11 @@ export let GAME_SERVER: string
 export let SCENE_PARENT: Entity
 
 export function init() {
-  const { config, engine, Transform } = getSDK()
+  const {
+    config,
+    engine,
+    components: { Transform }
+  } = getSDK()
 
   GAME_ID = config.gameId
   let _env = config.environment

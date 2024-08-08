@@ -38,7 +38,10 @@ class ScoreRow {
     this.time = scoreData.time ? scoreData.time : 0
     this.moves = scoreData.moves ? scoreData.moves : -1
     this.level = scoreData.level ? scoreData.level : -1
-    const { engine, Transform, TextShape } = getSDK()
+    const {
+      engine,
+      components: { Transform, TextShape }
+    } = getSDK()
     //placement number
     this.placeEntity = engine.addEntity()
     Transform.create(this.placeEntity, {
@@ -208,7 +211,9 @@ export class ScoreBoard {
     //https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
 
     this.header = new HeaderRow(_columnData, this.width, -this.rowHeight / 2, this.uiRoot, fontScale)
-    const { Transform, GltfContainer } = getSDK()
+    const {
+      components: { Transform, GltfContainer }
+    } = getSDK()
 
     Transform.create(this.uiRoot, rootTransform)
     this.frame = engine.addEntity()

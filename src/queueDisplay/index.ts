@@ -24,7 +24,11 @@ let timer2 = 0
 let showEnterScreen = true
 
 export function init(transform: TransformType) {
-  const { engine, Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent, players } = getSDK()
+  const {
+    engine,
+    components: { Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent },
+    players
+  } = getSDK()
 
   currentScreen = SCREENS.addToQueue
   positionActive = transform
@@ -137,7 +141,10 @@ function getScreenUVs(screen: number): number[] {
 
 function enable() {
   if (active) return
-  const { engine, Transform, Tween } = getSDK()
+  const {
+    engine,
+    components: { Transform, Tween }
+  } = getSDK()
 
   active = true
   const { position } = Transform.get(frameEntity)
@@ -167,7 +174,10 @@ function enable() {
 
 function disable() {
   if (!active) return
-  const { engine, Transform, Tween } = getSDK()
+  const {
+    engine,
+    components: { Transform, Tween }
+  } = getSDK()
 
   active = false
   showEnterScreen = true
@@ -185,7 +195,10 @@ function disable() {
 }
 
 function setScreen(screenIndex: number) {
-  const { engine, VisibilityComponent, MeshRenderer } = getSDK()
+  const {
+    engine,
+    components: { VisibilityComponent, MeshRenderer }
+  } = getSDK()
 
   if (screenIndex === SCREENS.queueList) {
     engine.addSystem(updateListSystem)
@@ -200,7 +213,10 @@ function setScreen(screenIndex: number) {
 }
 
 function updateListSystem(dt: number) {
-  const { players, VisibilityComponent, TextShape } = getSDK()
+  const {
+    players,
+    components: { VisibilityComponent, TextShape }
+  } = getSDK()
 
   timer += dt
   if (timer < 1) {
