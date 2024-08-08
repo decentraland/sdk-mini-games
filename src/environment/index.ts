@@ -2,7 +2,7 @@ import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
 import { getSDK } from '../sdk'
 
-export function initEnvironment() {
+export function addEnvironment() {
   const {
     engine,
     components: { Transform, GltfContainer }

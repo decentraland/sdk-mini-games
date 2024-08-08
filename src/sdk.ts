@@ -2,14 +2,14 @@ import { createInputSystem, IEngine, IInputSystem, Schemas } from '@dcl/sdk/ecs'
 import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
-import { IConfig } from '.'
+import { IOptions } from '.'
 import { Player as PlayerComponent, setPlayerComponent } from './components/Player'
 
 type ICache = {
   engine: IEngine
   syncEntity: typeof SyncEntityType
   players: typeof players
-  config: IConfig
+  config: IOptions
   inputSystem: IInputSystem
   components: {
     Transform: ReturnType<typeof components.Transform>

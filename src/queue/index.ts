@@ -1,5 +1,6 @@
 import { Entity } from '@dcl/sdk/ecs'
 import { getSDK } from '../sdk'
+import * as queueDisplay from './display'
 
 export type PlayerType = {
   address: string
@@ -14,12 +15,19 @@ export type PlayerType = {
 export const listeners: { onActivePlayerChange: (player: PlayerType) => void } = {
   onActivePlayerChange: () => {}
 }
+let initializedQueue = false
 /**
  * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
  */
-export function initPlayersQueue() {
-  const { engine, players } = getSDK()
+export function startPlayersQueue() {
+  if (initializedQueue) return
+  initializedQueue = true
+  const { engine, players, config } = getSDK()
+
+  if (config.queueDisplay) {
+    queueDisplay.init(config.queueDisplay)
+  }
 
   players.onLeaveScene((userId: string) => {
     console.log('Player leave scene', userId)
@@ -27,7 +35,6 @@ export function initPlayersQueue() {
   })
 
   engine.addSystem(internalPlayerSystem())
-
   // TODO: TIME LIMIT PER GAME (startPlayingAt - TIME_LIMIT)
 }
 /**

@@ -1,7 +1,7 @@
 import { EasingFunction, Entity, TextAlignMode, TransformType } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import { getSDK } from '../sdk'
-import { queue } from '..'
+import { getSDK } from '../../sdk'
+import { queue } from '../..'
 
 export enum SCREENS {
   addToQueue,
@@ -246,3 +246,5 @@ function updateListSystem(dt: number) {
   VisibilityComponent.getMutable(waitingListEntity).visible = true
   VisibilityComponent.getMutable(myPosEntity).visible = true
 }
+
+export default init
