@@ -134,10 +134,6 @@ export function setNextPlayer() {
  */
 let lastActivePlayer: string
 function internalPlayerSystem() {
-  const {
-    engine,
-    components: { Player, PlayerIdentityData }
-  } = getSDK()
   let timer = 0
   return function (dt: number) {
     timer += dt

@@ -23,12 +23,12 @@ export function initLibrary(
   options: IOptions
 ) {
   setSDK({ engine, syncEntity, players, config: options })
-  addEnvironment()
   startPlayersQueue()
   gameConfig.init()
-  progress.init()
+  void progress.init()
 }
 
+export { addEnvironment }
 export * as ui from './ui'
 export * as queue from './queue'
 export { sceneParentEntity } from './config'
