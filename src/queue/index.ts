@@ -134,6 +134,10 @@ export function setNextPlayer() {
  */
 let lastActivePlayer: string
 function internalPlayerSystem() {
+  const {
+    engine,
+    components: { Player, PlayerIdentityData }
+  } = getSDK()
   let timer = 0
   return function (dt: number) {
     timer += dt
@@ -173,7 +177,24 @@ function internalPlayerSystem() {
     ) {
       setNextPlayer()
     }
+
+    // Remove disconected players
+    for (const { player } of getQueue()) {
+      if (!isPlayerConnected(player.address)) {
+        removePlayer(player.address)
+      }
+    }
   }
+}
+function isPlayerConnected(userId: string) {
+  const {
+    engine,
+    components: { PlayerIdentityData }
+  } = getSDK()
+  for (const [_, player] of engine.getEntitiesWith(PlayerIdentityData)) {
+    if (player.address === userId) return true
+  }
+  return false
 }
 
 /**
