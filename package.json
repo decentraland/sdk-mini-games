@@ -22,6 +22,7 @@
     "trailingComma": "none"
   },
   "dependencies": {
+    "@dcl-sdk/mini-games": "^1.0.0-20240809014550.commit-99a6336",
     "@dcl/js-runtime": "latest",
     "@dcl/sdk": "latest"
   },
