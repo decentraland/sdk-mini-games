@@ -4,6 +4,7 @@ import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
 import { startPlayersQueue } from './queue'
 import * as gameConfig from './config'
+import * as progress from './progress'
 import { setSDK } from './sdk'
 import { addEnvironment } from './environment'
 
@@ -25,9 +26,11 @@ export function initLibrary(
   addEnvironment()
   startPlayersQueue()
   gameConfig.init()
+  progress.init()
 }
 
 export * as ui from './ui'
 export * as queue from './queue'
 export { sceneParentEntity } from './config'
 export * as utilities from './utilities'
+export * as progress from './progress'
