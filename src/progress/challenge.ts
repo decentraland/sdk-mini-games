@@ -1,53 +1,29 @@
-import { signedFetch } from '~system/SignedFetch'
-import { IChallenge } from './types'
-import { GAME_SERVER } from '../config'
-import { getSDK } from '../sdk'
+import { IChallenge, IScore } from './types'
+import { isScoreMetCondition } from './scoreCheck'
+import * as api from './api'
 
+export let activeChallenges: IChallenge[]
+
+/**
+ * TODO: Should we refetch this in an interval ?
+ * or just when we are updating the progress we are ok ?
+ */
 export async function getActiveChallenges() {
-  const { config } = getSDK()
-
-  // {{host}}/api/missions/in_progress
-  const url = `${GAME_SERVER}/api/missions/in_progress`
   try {
-    const allChallengeRes = await signedFetch({
-      url: url,
-      init: {
-        method: 'GET',
-        headers: {}
+    const completedChallengesId: string[] = ((await api.getCompletedChallenges()) ?? []).map(($) => $.id)
+    const gameChallenges = await api.getGameChallenges()
+    const _activeChallenges: IChallenge[] = []
+
+    for (const gameChallenge of gameChallenges ?? []) {
+      if (completedChallengesId.includes(gameChallenge.id)) {
+        // game challenge completed, continue to the next one
+        continue
       }
-    })
-    const allActiveChallenges = (await JSON.parse(allChallengeRes.body).data.challenges) as IChallenge[]
-    const gameChallenges: IChallenge[] = []
-    for (let i = 0; i < allActiveChallenges.length; i++) {
-      if (allActiveChallenges[i].game_id === config.gameId && allActiveChallenges[i].active) {
-        gameChallenges.push(allActiveChallenges[i])
-      }
+      _activeChallenges.push(gameChallenge)
     }
 
-    // check for completed challenge.
-    // {{host}}/api/missions/in_progress
-    const completedChallengesurl = `${GAME_SERVER}/api/games/${config.gameId}/challenges/completed`
-    const completedChallengeRes = await signedFetch({
-      url: completedChallengesurl,
-      init: {
-        method: 'GET',
-        headers: {}
-      }
-    })
-    const completedChallenges = (await JSON.parse(completedChallengeRes.body).data) as IChallenge[]
-    const validGameChallenges: IChallenge[] = []
-    for (let i = 0; i < gameChallenges.length; i++) {
-      let isFound = false
-      for (let j = 0; j < completedChallenges.length; j++) {
-        if (completedChallenges[j].id === gameChallenges[i].id) {
-          isFound = true
-          break
-        }
-      }
-      if (!isFound) validGameChallenges.push(gameChallenges[i])
-    }
-
-    return validGameChallenges
+    activeChallenges = _activeChallenges
+    return activeChallenges
   } catch (e) {
     console.log('getActiveChallenges. error:', e)
     return undefined
@@ -55,20 +31,45 @@ export async function getActiveChallenges() {
 }
 
 export async function completeChallenge(challengeId: string) {
-  //{{host}}/api/challenges/:id
-  const url = `${GAME_SERVER}/api/challenges/${challengeId}`
   try {
-    const response = await signedFetch({
-      url: url,
-      init: {
-        method: 'POST',
-        headers: {}
-      }
-    })
-
-    getActiveChallenges()
+    await api.postCompleteChallenge(challengeId)
+    await getActiveChallenges()
   } catch (e) {
     console.log('completeChallenge. error:', e)
-    return undefined
   }
+}
+
+// check score with all active challenges.
+export function checkIfChallengeComplete(score: IScore): boolean {
+  if (!activeChallenges) {
+    console.log('checkScoreWithActiveChallenges. active challenges undefined. check progress initialization. return.')
+    return false
+  }
+
+  if (!activeChallenges.length) {
+    console.log('checkScoreWithActiveChallenges. no active challenge. return.')
+    return false
+  }
+
+  let isSomeChallengeConditionMet = false
+
+  for (const challenge of activeChallenges) {
+    const challengeData = challenge.data
+    const challengeId = challenge.id
+    const conditionMet = isScoreMetCondition(score, challengeData)
+    if (conditionMet) {
+      isSomeChallengeConditionMet = true
+      console.log(
+        'checkScoreWithActiveChallenges. score met challenge condition. ID:',
+        challengeId,
+        'data:',
+        challengeData
+      )
+
+      // TODO: maybe we need to wait for this ?
+      // If we met a challenge should we return here ? Or we need to check for every challenge ?
+      void completeChallenge(challengeId)
+    }
+  }
+  return isSomeChallengeConditionMet
 }

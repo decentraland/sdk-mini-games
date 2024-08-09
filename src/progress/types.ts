@@ -37,3 +37,12 @@ export type IChallengeData = {
     target: number
   }
 }
+
+export type IProgress = IScore & {
+  id: string
+  game_id: string
+  user_address: string
+  user_name: string
+  data: Record<string, unknown>
+  updated_at: string
+}
