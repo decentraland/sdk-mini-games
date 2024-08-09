@@ -22,6 +22,7 @@ type ICache = {
     PointerEvents: ReturnType<typeof components.PointerEvents>
     Billboard: ReturnType<typeof components.Billboard>
     Tween: ReturnType<typeof components.Tween>
+    PlayerIdentityData: ReturnType<typeof components.PlayerIdentityData>
     Player: typeof PlayerComponent
   }
 }
@@ -49,6 +50,7 @@ export function setSDK(value: Omit<ICache, 'inputSystem' | 'components'>) {
     PointerEvents: components.PointerEvents(cache.engine),
     Billboard: components.Billboard(cache.engine),
     Tween: components.Tween(cache.engine),
+    PlayerIdentityData: components.PlayerIdentityData(cache.engine),
     Player: value.engine.defineComponent('sdk-utils/player:player', {
       address: Schemas.String,
       joinedAt: Schemas.Int64,
