@@ -2,7 +2,7 @@ import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
 import { getSDK } from '../sdk'
 
-export function addEnvironment() {
+export function addEnvironment(environmentGlb: string) {
   const {
     engine,
     components: { Transform, GltfContainer }
@@ -12,5 +12,5 @@ export function addEnvironment() {
     position: Vector3.create(8, 0, 8),
     rotation: Quaternion.fromEulerDegrees(0, 180, 0)
   })
-  GltfContainer.create(environment, { src: 'mini-games-assets/models/environment.glb' })
+  GltfContainer.create(environment, { src: environmentGlb ?? 'mini-games-assets/models/environment.glb' })
 }
