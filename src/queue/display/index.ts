@@ -10,7 +10,9 @@ export enum SCREENS {
 }
 
 let frameEntity: Entity
-let positionActive: TransformType
+// TODO: use for now for moving the player outside the game area.
+// it should use the config.queueDisplay once we move this logic there
+export let positionActive: TransformType
 let positionDisabled: TransformType
 let displayEntity: Entity
 let waitingListEntity: Entity
