@@ -61,14 +61,12 @@ export function checkIfChallengeComplete(score: IScore): string[] {
   }
 
   const challengeIdCompleted: string[] = []
-  let isSomeChallengeConditionMet = false
 
   for (const challenge of activeChallenges) {
     const challengeData = challenge.data
     const challengeId = challenge.id
     const conditionMet = isScoreMetCondition(score, challengeData)
     if (conditionMet) {
-      isSomeChallengeConditionMet = true
       console.log(
         'checkScoreWithActiveChallenges. score met challenge condition. ID:',
         challengeId,
@@ -76,12 +74,9 @@ export function checkIfChallengeComplete(score: IScore): string[] {
         challengeData
       )
 
-      // TODO: maybe we need to wait for this ?
-      // If we met a challenge should we return here ? Or we need to check for every challenge ?
       void completeChallenge(challengeId)
       challengeIdCompleted.push(challengeId)
     }
   }
-  //   return isSomeChallengeConditionMet
   return challengeIdCompleted
 }

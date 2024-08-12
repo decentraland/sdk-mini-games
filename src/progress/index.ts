@@ -1,5 +1,5 @@
 import { getSDK } from '../sdk'
-import { checkIfChallengeComplete, getActiveChallenges, getActiveChallengesSystem } from './challenge'
+import { checkIfChallengeComplete, getActiveChallengesSystem } from './challenge'
 import { getProgress, upsertProgress } from './progress'
 
 async function init() {

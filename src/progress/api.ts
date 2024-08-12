@@ -65,10 +65,10 @@ export async function postCompleteChallenge(challengeId: string) {
   })
 }
 
-export async function updateProgress(score: IScore, user_id: string) {
+export async function updateProgress(score: IScore, userId: string) {
   const { config, players } = getSDK()
 
-  const user_name = players.getPlayer({ userId: user_id })?.name ?? ''
+  const user_name = players.getPlayer({ userId: userId })?.name ?? ''
   const url = `${GAME_SERVER}/api/games/${config.gameId}/progress`
   console.log('upsert progress url:', url)
   try {
@@ -77,8 +77,7 @@ export async function updateProgress(score: IScore, user_id: string) {
       init: {
         method: 'POST',
         body: JSON.stringify({
-          // TODO: why the name ?
-          user_name: user_name,
+          user_name,
           ...score
         }),
         headers: {}
