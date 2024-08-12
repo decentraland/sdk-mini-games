@@ -46,3 +46,8 @@ export type IProgress = IScore & {
   data: Record<string, unknown>
   updated_at: string
 }
+
+export enum SortDirection {
+  ASC = 'ASC',
+  DESC = 'DESC'
+}

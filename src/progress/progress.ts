@@ -1,4 +1,4 @@
-import { IScore } from './types'
+import { IScore, ScoreKeys, SortDirection } from './types'
 import { getSDK } from '../sdk'
 import { checkIfChallengeComplete } from '.'
 import * as api from './api'
@@ -13,6 +13,6 @@ export async function upsertProgress(score: IScore) {
   }
 }
 
-export async function getProgress() {
-  return api.getProgress()
+export async function getProgress(sortBy: ScoreKeys, sortDirection: SortDirection, limit?: number) {
+  return api.getProgress(sortBy, sortDirection, limit)
 }
