@@ -1,6 +1,6 @@
 import { signedFetch } from '~system/SignedFetch'
 import { GAME_SERVER } from '../config'
-import { IChallenge, IProgress, IScore } from './types'
+import { IChallenge, IProgress, IScore, ScoreKeys, SortDirection } from './types'
 import { getSDK } from '../sdk'
 
 /**
@@ -90,11 +90,15 @@ export async function updateProgress(score: IScore, userId: string) {
   }
 }
 
-export async function getProgress(): Promise<IProgress[] | undefined> {
+export async function getProgress(
+  sortBy: ScoreKeys,
+  sortDirection: SortDirection,
+  limit: number = 10
+): Promise<IProgress[] | undefined> {
   const { config } = getSDK()
 
   // {{host}}/api/games/:id/progress?sort=level&limit=10&direction=DESC
-  const url = `${GAME_SERVER}/api/games/${config.gameId}/progress?sort=level&limit=10&direction=DESC`
+  const url = `${GAME_SERVER}/api/games/${config.gameId}/progress?sort=${sortBy}&limit=${limit}&direction=${sortDirection}`
   console.log('get progress url:', url)
   try {
     const response = await signedFetch({
