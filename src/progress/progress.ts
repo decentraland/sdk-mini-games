@@ -6,7 +6,7 @@ import * as api from './api'
 export async function upsertProgress(score: IScore) {
   const { players } = getSDK()
   try {
-    const _progress = await api.updateProgress(score, players.getPlayer()?.name ?? '')
+    const _progress = await api.updateProgress(score, players.getPlayer()?.userId ?? '')
     checkIfChallengeComplete(score)
   } catch (e) {
     console.log('error upsert progress', e)

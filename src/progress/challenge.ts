@@ -4,12 +4,21 @@ import * as api from './api'
 
 export let activeChallenges: IChallenge[]
 
-/**
- * TODO: Should we refetch this in an interval ?
- * or just when we are updating the progress we are ok ?
- */
+let fetchInterval = 10 //second
+let intervalCount = 0
+export function getActiveChallengesSystem(dt: number){
+  intervalCount -= dt
+  if(intervalCount > 0) return
+
+  intervalCount = fetchInterval
+  void getActiveChallenges()
+
+}
+
 export async function getActiveChallenges() {
   try {
+    intervalCount = fetchInterval
+    
     const completedChallengesId: string[] = ((await api.getCompletedChallenges()) ?? []).map(($) => $.id)
     const gameChallenges = await api.getGameChallenges()
     const _activeChallenges: IChallenge[] = []
@@ -23,6 +32,7 @@ export async function getActiveChallenges() {
     }
 
     activeChallenges = _activeChallenges
+    console.log('active challenge:', activeChallenges)
     return activeChallenges
   } catch (e) {
     console.log('getActiveChallenges. error:', e)
@@ -40,17 +50,18 @@ export async function completeChallenge(challengeId: string) {
 }
 
 // check score with all active challenges.
-export function checkIfChallengeComplete(score: IScore): boolean {
+export function checkIfChallengeComplete(score: IScore): string[] {
   if (!activeChallenges) {
     console.log('checkScoreWithActiveChallenges. active challenges undefined. check progress initialization. return.')
-    return false
+    return []
   }
 
   if (!activeChallenges.length) {
     console.log('checkScoreWithActiveChallenges. no active challenge. return.')
-    return false
+    return []
   }
 
+  let challengeIdCompleted: string[] = []
   let isSomeChallengeConditionMet = false
 
   for (const challenge of activeChallenges) {
@@ -69,7 +80,9 @@ export function checkIfChallengeComplete(score: IScore): boolean {
       // TODO: maybe we need to wait for this ?
       // If we met a challenge should we return here ? Or we need to check for every challenge ?
       void completeChallenge(challengeId)
+      challengeIdCompleted.push(challengeId)
     }
   }
-  return isSomeChallengeConditionMet
+//   return isSomeChallengeConditionMet
+  return challengeIdCompleted
 }

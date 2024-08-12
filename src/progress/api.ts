@@ -65,13 +65,11 @@ export async function postCompleteChallenge(challengeId: string) {
   })
 }
 
-// TODO: i think that we shouldn't be passing the name.
-// we can pass the user_id and then grab the name from the PlyerIdentityData
-export async function updateProgress(score: IScore, name: string) {
-  const { config } = getSDK()
+export async function updateProgress(score: IScore, user_id: string) {
+  const { config, players } = getSDK()
 
-  // TODO: i think the sort, limit, direction are not necessary here.
-  const url = `${GAME_SERVER}/api/games/${config.gameId}/progress?sort=level&limit=10&direction=DESC`
+  const user_name = players.getPlayer({userId: user_id})?.name ?? ''
+  const url = `${GAME_SERVER}/api/games/${config.gameId}/progress`
   console.log('upsert progress url:', url)
   try {
     const response = await signedFetch({
@@ -80,7 +78,7 @@ export async function updateProgress(score: IScore, name: string) {
         method: 'POST',
         body: JSON.stringify({
           // TODO: why the name ?
-          user_name: name,
+          user_name: user_name,
           ...score
         }),
         headers: {}
