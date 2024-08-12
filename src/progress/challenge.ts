@@ -4,21 +4,20 @@ import * as api from './api'
 
 export let activeChallenges: IChallenge[]
 
-let fetchInterval = 10 //second
+const fetchInterval = 10 //second
 let intervalCount = 0
-export function getActiveChallengesSystem(dt: number){
+export function getActiveChallengesSystem(dt: number) {
   intervalCount -= dt
-  if(intervalCount > 0) return
+  if (intervalCount > 0) return
 
   intervalCount = fetchInterval
   void getActiveChallenges()
-
 }
 
 export async function getActiveChallenges() {
   try {
     intervalCount = fetchInterval
-    
+
     const completedChallengesId: string[] = ((await api.getCompletedChallenges()) ?? []).map(($) => $.id)
     const gameChallenges = await api.getGameChallenges()
     const _activeChallenges: IChallenge[] = []
@@ -61,7 +60,7 @@ export function checkIfChallengeComplete(score: IScore): string[] {
     return []
   }
 
-  let challengeIdCompleted: string[] = []
+  const challengeIdCompleted: string[] = []
   let isSomeChallengeConditionMet = false
 
   for (const challenge of activeChallenges) {
@@ -83,6 +82,6 @@ export function checkIfChallengeComplete(score: IScore): string[] {
       challengeIdCompleted.push(challengeId)
     }
   }
-//   return isSomeChallengeConditionMet
+  //   return isSomeChallengeConditionMet
   return challengeIdCompleted
 }
