@@ -16,6 +16,7 @@ export type IOptions = {
   gameArea?: {
     topLeft: TransformType['position']
     bottomRight: TransformType['position']
+    exitSpawnPoint: TransformType['position']
   }
 }
 
