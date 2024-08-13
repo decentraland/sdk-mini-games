@@ -66,7 +66,7 @@ export class Timer3D {
     this.seconds.setNumber(seconds)
   }
 
-  setTimeAnimated(_seconds: number, interpolation: EasingFunction) {
+  setTimeAnimated(_seconds: number) {
     const {
       components: { Transform, Tween }
     } = getSDK()
@@ -87,7 +87,7 @@ export class Timer3D {
       Tween.createOrReplace(this.root, {
         duration: 400,
         currentTime: 0,
-        easingFunction: interpolation,
+        easingFunction: EasingFunction.EF_EASEOUTELASTIC,
         mode: Tween.Mode.Scale({ start: Vector3.Zero(), end: Transform.get(this.root).scale })
       })
     }
