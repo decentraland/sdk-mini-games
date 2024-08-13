@@ -261,9 +261,8 @@ export class ScoreBoard {
   }
 
   async getScores() {
-    // TODO: get id from config
     const { config } = getSDK()
-    const GAME_ID = '5728b531-4760-4647-a843-d164283dae6d' ?? config.gameId
+    const GAME_ID = config.gameId ?? '5728b531-4760-4647-a843-d164283dae6d'
     // https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
     //let scores: any[] = []
     const url =
