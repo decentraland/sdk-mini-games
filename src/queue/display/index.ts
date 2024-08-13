@@ -19,9 +19,7 @@ let active = false
 let currentScreen: number
 const screensAtlas = 'mini-game-assets/images/GameSigns.png'
 const frameModel = 'mini-game-assets/models/queueDisplay/workstation_display.glb'
-let timer = 0
-let timer2 = 0
-let showEnterScreen = true
+let enterScreenShown = false
 let initialized = false
 
 export function initQueueDisplay(transform: TransformType) {
@@ -29,8 +27,7 @@ export function initQueueDisplay(transform: TransformType) {
   initialized = true
   const {
     engine,
-    components: { Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent },
-    players
+    components: { Transform, GltfContainer, Material, MeshRenderer, VisibilityComponent }
   } = getSDK()
 
   currentScreen = SCREENS.addToQueue
@@ -76,42 +73,14 @@ export function initQueueDisplay(transform: TransformType) {
   VisibilityComponent.create(myPosEntity, { visible: false })
 
   let queueDisplayTimer = 0
-  engine.addSystem(
-    (dt: number) => {
-      queueDisplayTimer += dt
+  engine.addSystem((dt: number) => {
+    queueDisplayTimer += dt
 
-      if (queueDisplayTimer < 0.25) return
-      queueDisplayTimer = 0
+    if (queueDisplayTimer < 0.25) return
+    queueDisplayTimer = 0
 
-      const playerInQueue = queue.getQueue().find((item) => item.player.address === players.getPlayer()?.userId)
-      if (playerInQueue) {
-        if (!queue.isActive()) {
-          enable()
-        } else if (showEnterScreen) {
-          showEnterScreen = false
-          setScreen(SCREENS.playNext)
-
-          //wait 2 sec and disable
-          let closeTimer = 2
-          engine.addSystem(
-            (dt: number) => {
-              closeTimer -= dt
-              if (closeTimer > 0) return
-              closeTimer = 2
-              disable()
-              engine.removeSystem('delayDisable')
-            },
-            undefined,
-            'delayDisable'
-          )
-        }
-      } else {
-        disable()
-      }
-    },
-    undefined,
-    'queueDisplaySystem'
-  )
+    updateScreenSystem()
+  })
 }
 
 function getScreenUVs(screen: number): number[] {
@@ -145,7 +114,6 @@ function getScreenUVs(screen: number): number[] {
 function enable() {
   if (active) return
   const {
-    engine,
     components: { Transform, Tween }
   } = getSDK()
 
@@ -160,30 +128,19 @@ function enable() {
     duration: 1000,
     easingFunction: EasingFunction.EF_EASEOUTEXPO
   })
-
-  engine.addSystem(
-    (dt: number) => {
-      timer2 += dt
-
-      if (timer2 < 2) return
-      timer2 = 0
-      setScreen(SCREENS.queueList)
-      engine.removeSystem('delay2')
-    },
-    undefined,
-    'delay2'
-  )
 }
 
 function disable() {
   if (!active) return
   const {
-    engine,
-    components: { Transform, Tween }
+    components: { Transform, Tween, VisibilityComponent }
   } = getSDK()
 
+  VisibilityComponent.getMutable(waitingListEntity).visible = false
+  VisibilityComponent.getMutable(myPosEntity).visible = false
+
   active = false
-  showEnterScreen = true
+
   const { position } = Transform.get(frameEntity)
   Tween.createOrReplace(frameEntity, {
     mode: Tween.Mode.Move({
@@ -193,20 +150,17 @@ function disable() {
     duration: 1000,
     easingFunction: EasingFunction.EF_EASEOUTEXPO
   })
-
-  engine.removeSystem(updateListSystem)
 }
 
 function setScreen(screenIndex: number) {
   const {
-    engine,
     components: { VisibilityComponent, MeshRenderer }
   } = getSDK()
 
   if (screenIndex === SCREENS.queueList) {
-    engine.addSystem(updateListSystem)
+    VisibilityComponent.getMutable(waitingListEntity).visible = true
+    VisibilityComponent.getMutable(myPosEntity).visible = true
   } else {
-    engine.removeSystem(updateListSystem)
     VisibilityComponent.getMutable(waitingListEntity).visible = false
     VisibilityComponent.getMutable(myPosEntity).visible = false
   }
@@ -215,37 +169,73 @@ function setScreen(screenIndex: number) {
   MeshRenderer.setPlane(displayEntity, getScreenUVs(screenIndex))
 }
 
-function updateListSystem(dt: number) {
+function updateScreenSystem() {
   const {
     players,
-    components: { VisibilityComponent, TextShape }
+    components: { TextShape }
   } = getSDK()
 
-  timer += dt
-  if (timer < 1) {
-    return
-  }
-  timer = 0
-
   const playerQueue = queue.getQueue()
-  const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
   const myPos = playerQueue.findIndex((item) => item.player.address === players.getPlayer()?.userId)
 
-  if (myPos === -1) disable()
+  if (myPos !== -1) {
+    if (myPos !== 0) {
+      if (currentScreen === SCREENS.queueList) {
+        //in waiting list, finished enter queue screen
+        enable()
 
-  TextShape.createOrReplace(waitingListEntity, {
-    text: playerNames.join('\n'),
-    fontSize: 1.1,
-    textAlign: TextAlignMode.TAM_TOP_CENTER,
-    textColor: Color4.Black()
-  })
+        const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
 
-  TextShape.createOrReplace(myPosEntity, {
-    text: `${myPos}`,
-    fontSize: 2,
-    textAlign: TextAlignMode.TAM_TOP_CENTER
-  })
+        TextShape.createOrReplace(waitingListEntity, {
+          text: playerNames.join('\n'),
+          fontSize: 1.1,
+          textAlign: TextAlignMode.TAM_TOP_CENTER,
+          textColor: Color4.Black()
+        })
 
-  VisibilityComponent.getMutable(waitingListEntity).visible = true
-  VisibilityComponent.getMutable(myPosEntity).visible = true
+        TextShape.createOrReplace(myPosEntity, {
+          text: `${myPos}`,
+          fontSize: 2,
+          textAlign: TextAlignMode.TAM_TOP_CENTER
+        })
+      } else {
+        //in waiting list, show enter queue screen
+        setScreen(SCREENS.addToQueue)
+        enable()
+        delayedFunction(() => setScreen(SCREENS.queueList))
+      }
+    } else if (!enterScreenShown) {
+      //active player, show about to enter screen
+      enterScreenShown = true
+
+      enable()
+
+      setScreen(SCREENS.playNext)
+      delayedFunction(() => disable())
+    }
+  } else {
+    //player not in queue
+    disable()
+    enterScreenShown = false
+    setScreen(SCREENS.addToQueue)
+  }
+}
+
+function delayedFunction(cb: () => void) {
+  console.log('enter screen delay')
+  const { engine } = getSDK()
+
+  let closeTimer = 4
+  engine.addSystem(
+    (dt: number) => {
+      closeTimer -= dt
+      if (closeTimer > 0) return
+
+      cb && cb()
+
+      engine.removeSystem('delayDisable')
+    },
+    undefined,
+    'delayDisable'
+  )
 }
