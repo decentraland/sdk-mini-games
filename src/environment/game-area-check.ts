@@ -27,7 +27,7 @@ export function gameAreaCheck() {
       const sceneRotation = Transform.get(sceneParentEntity).rotation
       const areaPt1 = rotateVectorAroundCenter(config.gameArea.topLeft, center, sceneRotation)
       const areaPt2 = rotateVectorAroundCenter(config.gameArea.bottomRight, center, sceneRotation)
-      console.log(playerTransform.position)
+
       // If the player is inside the game-area but its not the active player.
       if (utilities.isVectorInsideArea(playerTransform.position, areaPt1, areaPt2)) {
         if (!queue.isActive()) {
