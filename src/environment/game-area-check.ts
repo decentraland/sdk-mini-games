@@ -5,7 +5,6 @@ import { sceneParentEntity } from '../config'
 import { rotateVectorAroundCenter } from '../utilities'
 import { movePlayerTo } from '~system/RestrictedActions'
 import { getQueue, setNextPlayer } from '../queue'
-import { positionActive } from '../queue/display'
 
 export function gameAreaCheck() {
   let areaCheckTimer = 0
