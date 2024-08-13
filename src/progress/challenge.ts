@@ -31,7 +31,6 @@ export async function getActiveChallenges() {
     }
 
     activeChallenges = _activeChallenges
-    console.log('active challenge:', activeChallenges)
     return activeChallenges
   } catch (e) {
     console.log('getActiveChallenges. error:', e)

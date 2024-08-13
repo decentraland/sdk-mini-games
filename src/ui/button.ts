@@ -1,4 +1,5 @@
 import {
+  EasingFunction,
   Entity,
   InputAction,
   MaterialTransparencyMode,
@@ -8,7 +9,6 @@ import {
 } from '@dcl/sdk/ecs'
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import { IconData, ButtonShapeData, uiAtlas, uiAssets } from './resources'
-import * as utils from '@dcl-sdk/utils'
 import { getSDK } from '../sdk'
 
 export class MenuButton {
@@ -33,7 +33,18 @@ export class MenuButton {
     const {
       engine,
       inputSystem,
-      components: { Material, MeshRenderer, Transform, GltfContainer, PointerEvents, VisibilityComponent }
+      components: {
+        Material,
+        MeshRenderer,
+        Transform,
+        GltfContainer,
+        PointerEvents,
+        VisibilityComponent,
+        Tween,
+        TweenSequence,
+        TweenState
+      },
+      tweenSystem
     } = getSDK()
 
     this.enabled = true
@@ -90,6 +101,26 @@ export class MenuButton {
     })
 
     engine.addSystem(() => {
+      // TODO: Why is not been triggered ?
+      if (tweenSystem.tweenCompleted(this.button)) {
+        console.log('asd', Tween.getOrNull(this.button))
+      }
+
+      // TODO: this should be tweenCompleted but no idea why is not working :sadcat:
+      if (TweenState.getOrNull(this.button)?.currentTime === 1 && TweenSequence.getOrNull(this.button)) {
+        if (!TweenSequence.get(this.button).sequence.length) {
+          // Tween.deleteFrom(this.button)
+          TweenSequence.deleteFrom(this.button)
+          VisibilityComponent.getMutable(this.glowPlane).visible = false
+          //reset the emissive of the icon
+          if (this.enabled) {
+            Material.setPbrMaterial(this.icon, this.iconGlowMat)
+          } else {
+            Material.setPbrMaterial(this.icon, this.iconDisabledMat)
+          }
+        }
+      }
+
       if (inputSystem.isTriggered(InputAction.IA_POINTER, PointerEventType.PET_DOWN, this.button)) {
         if (this.enabled) {
           callback()
@@ -103,37 +134,26 @@ export class MenuButton {
             alphaTexture: Material.Texture.Common({ src: uiAtlas }),
             transparencyMode: MaterialTransparencyMode.MTM_ALPHA_TEST
           })
-
-          utils.tweens.stopTranslation(this.button)
           VisibilityComponent.getMutable(this.glowPlane).visible = true
           //tween button inward
-          utils.tweens.startTranslation(
-            this.button,
-            Vector3.create(0, 0, 0),
-            Vector3.create(0, -0.03, 0),
-            0.05,
-            utils.InterpolationType.EASEOUTSINE,
-            () => {
-              //when finished tween button outward
-
-              utils.tweens.startTranslation(
-                this.button,
-                Vector3.create(0, -0.03, 0),
-                Vector3.create(0, 0, 0),
-                0.3,
-                utils.InterpolationType.EASEOUTSINE,
-                () => {
-                  VisibilityComponent.getMutable(this.glowPlane).visible = false
-                  //reset the emissive of the icon
-                  if (this.enabled) {
-                    Material.setPbrMaterial(this.icon, this.iconGlowMat)
-                  } else {
-                    Material.setPbrMaterial(this.icon, this.iconDisabledMat)
-                  }
-                }
-              )
-            }
-          )
+          Tween.createOrReplace(this.button, {
+            duration: 500,
+            currentTime: 0,
+            playing: true,
+            easingFunction: EasingFunction.EF_EASEOUTSINE,
+            mode: Tween.Mode.Move({ start: Vector3.Zero(), end: Vector3.create(0, -0.03, 0) })
+          })
+          TweenSequence.createOrReplace(this.button, {
+            sequence: [
+              {
+                duration: 500,
+                currentTime: 0,
+                playing: true,
+                easingFunction: EasingFunction.EF_EASEOUTSINE,
+                mode: Tween.Mode.Move({ start: Vector3.create(0, -0.03, 0), end: Vector3.Zero() })
+              }
+            ]
+          })
         } else {
           this.playSound('mini-game-assets/sounds/wrong.mp3')
         }

@@ -1,7 +1,7 @@
-import { Entity, TransformTypeWithOptionals } from '@dcl/sdk/ecs'
+import { EasingFunction, Entity, TransformTypeWithOptionals } from '@dcl/sdk/ecs'
 import { Counter3D } from './counter'
 import { Vector3 } from '@dcl/sdk/math'
-import * as utils from '@dcl-sdk/utils'
+
 import { getSDK } from '../sdk'
 
 export class Timer3D {
@@ -18,7 +18,8 @@ export class Timer3D {
   ) {
     const {
       engine,
-      components: { Transform }
+      tweenSystem,
+      components: { Transform, Tween }
     } = getSDK()
     this.root = engine.addEntity()
     Transform.create(this.root, transform)
@@ -48,6 +49,12 @@ export class Timer3D {
       )
       this.minutes.setNumber(0)
     }
+
+    engine.addSystem(() => {
+      if (tweenSystem.tweenCompleted(this.root)) {
+        Tween.deleteFrom(this.root)
+      }
+    })
   }
 
   setTimeSeconds(_seconds: number) {
@@ -59,9 +66,9 @@ export class Timer3D {
     this.seconds.setNumber(seconds)
   }
 
-  setTimeAnimated(_seconds: number, interpolation: utils.InterpolationType) {
+  setTimeAnimated(_seconds: number, interpolation: EasingFunction) {
     const {
-      components: { Transform }
+      components: { Transform, Tween }
     } = getSDK()
     const minutes = Math.floor(_seconds / 60)
     const remainingSeconds = _seconds % 60
@@ -77,7 +84,12 @@ export class Timer3D {
     this.seconds.setNumber(seconds)
 
     if (secondsChanged) {
-      utils.tweens.startScaling(this.root, Vector3.Zero(), Transform.get(this.root).scale, 0.4, interpolation)
+      Tween.createOrReplace(this.root, {
+        duration: 400,
+        currentTime: 0,
+        easingFunction: interpolation,
+        mode: Tween.Mode.Scale({ start: Vector3.Zero(), end: Transform.get(this.root).scale })
+      })
     }
   }
   hide() {
