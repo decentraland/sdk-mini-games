@@ -1,4 +1,4 @@
-import { IEngine } from '@dcl/sdk/ecs'
+import { IEngine, TransformType } from '@dcl/sdk/ecs'
 import type playersType from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
 
@@ -6,13 +6,18 @@ import { startPlayersQueue } from './queue'
 import * as gameConfig from './config'
 import * as progress from './progress'
 import { setSDK } from './sdk'
-import { addEnvironment } from './environment'
+import { gameAreaCheck } from './environment/game-area-check'
 
 export type IOptions = {
   gameId: string
   environment: string
   gameTimeoutMs?: number
   sceneRotation?: number
+  gameArea?: {
+    topLeft: TransformType['position']
+    bottomRight: TransformType['position']
+    exitSpawnPoint: TransformType['position']
+  }
 }
 
 export let engine: IEngine
@@ -26,9 +31,12 @@ export function initLibrary(
   startPlayersQueue()
   gameConfig.init()
   void progress.init()
+
+  if (options.gameArea) {
+    engine.addSystem(gameAreaCheck())
+  }
 }
 
-export { addEnvironment }
 export * as ui from './ui'
 export * as queue from './queue'
 export { sceneParentEntity } from './config'

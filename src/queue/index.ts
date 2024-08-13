@@ -26,7 +26,6 @@ export function startPlayersQueue() {
   initializedQueue = true
   const { engine, players } = getSDK()
   players.onLeaveScene((userId: string) => {
-    console.log('Player leave scene', userId)
     removePlayer(userId)
   })
 
