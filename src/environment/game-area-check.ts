@@ -32,7 +32,9 @@ export function gameAreaCheck() {
       // If the player is inside the game-area but its not the active player.
       if (utilities.isVectorInsideArea(playerTransform.position, areaPt1, areaPt2)) {
         if (!queue.isActive()) {
-          void movePlayerTo({ newRelativePosition: positionActive.position })
+          const spawn = Vector3.clone(positionActive.position)
+          spawn.x = spawn.x - 2
+          void movePlayerTo({ newRelativePosition: rotateVectorAroundCenter(spawn, center, sceneRotation) })
         }
         // Active player left game area
         // (we put a 2s grace period because the movePlayer takes time)

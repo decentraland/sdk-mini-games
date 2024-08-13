@@ -26,7 +26,7 @@ let timer2 = 0
 let showEnterScreen = true
 let initialized = false
 
-export function initQueueDisplay(transform: TransformType) {
+export function initQueueDisplay(displayTransform: TransformType) {
   if (initialized) return
   initialized = true
   const {
@@ -36,10 +36,10 @@ export function initQueueDisplay(transform: TransformType) {
   } = getSDK()
 
   currentScreen = SCREENS.addToQueue
-  positionActive = transform
+  positionActive = displayTransform
   positionDisabled = {
-    ...transform,
-    position: { ...transform.position, y: transform.position.y - 1 }
+    ...displayTransform,
+    position: { ...displayTransform.position, y: displayTransform.position.y - 1 }
   }
   //FRAME
   frameEntity = engine.addEntity()
