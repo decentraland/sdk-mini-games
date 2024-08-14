@@ -1,4 +1,4 @@
-import { createInputSystem, IEngine, IInputSystem, Schemas } from '@dcl/sdk/ecs'
+import { createInputSystem, IEngine, IInputSystem, Schemas, createTweenSystem, TweenSystem } from '@dcl/sdk/ecs'
 import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
 import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
@@ -11,6 +11,7 @@ type ICache = {
   players: typeof players
   config: IOptions
   inputSystem: IInputSystem
+  tweenSystem: TweenSystem
   components: {
     Transform: ReturnType<typeof components.Transform>
     GltfContainer: ReturnType<typeof components.GltfContainer>
@@ -22,6 +23,8 @@ type ICache = {
     PointerEvents: ReturnType<typeof components.PointerEvents>
     Billboard: ReturnType<typeof components.Billboard>
     Tween: ReturnType<typeof components.Tween>
+    TweenSequence: ReturnType<typeof components.TweenSequence>
+    TweenState: ReturnType<typeof components.TweenState>
     PlayerIdentityData: ReturnType<typeof components.PlayerIdentityData>
     Player: typeof PlayerComponent
   }
@@ -32,12 +35,13 @@ const cache: ICache = {} as ICache
 /**
  * @internal
  */
-export function setSDK(value: Omit<ICache, 'inputSystem' | 'components'>) {
+export function setSDK(value: Omit<ICache, 'inputSystem' | 'components' | 'tweenSystem'>) {
   for (const key in value) {
     ;(cache as any)[key] = (value as any)[key]
   }
 
   cache.inputSystem = createInputSystem(value.engine)
+  cache.tweenSystem = createTweenSystem(value.engine)
 
   cache.components = {
     Transform: components.Transform(cache.engine),
@@ -50,6 +54,8 @@ export function setSDK(value: Omit<ICache, 'inputSystem' | 'components'>) {
     PointerEvents: components.PointerEvents(cache.engine),
     Billboard: components.Billboard(cache.engine),
     Tween: components.Tween(cache.engine),
+    TweenSequence: components.TweenSequence(cache.engine),
+    TweenState: components.TweenState(cache.engine),
     PlayerIdentityData: components.PlayerIdentityData(cache.engine),
     Player: value.engine.defineComponent('sdk-utils/player:player', {
       address: Schemas.String,
