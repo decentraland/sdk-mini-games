@@ -13,7 +13,7 @@ export { initQueueDisplay }
 /**
  * listeners.onActivePlayerChange = (player) => player.address
  */
-export const listeners: { onActivePlayerChange: (player: PlayerType) => void } = {
+export const listeners: { onActivePlayerChange: (player: PlayerType | null) => void } = {
   onActivePlayerChange: () => {}
 }
 let initializedQueue = false
@@ -121,9 +121,10 @@ export function setNextPlayer() {
     lastActivePlayer = nextPlayer.player.address
     Player.getMutable(nextPlayer.entity).active = true
     Player.getMutable(nextPlayer.entity).startPlayingAt = Date.now()
-    if (listeners.onActivePlayerChange) {
-      listeners.onActivePlayerChange(Player.get(nextPlayer.entity))
-    }
+  }
+
+  if (listeners.onActivePlayerChange) {
+    listeners.onActivePlayerChange(Player.getOrNull(nextPlayer?.entity))
   }
 }
 
