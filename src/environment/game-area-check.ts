@@ -37,7 +37,7 @@ export function gameAreaCheck() {
         }
         // Active player left game area
         // (we put a 2s grace period because the movePlayer takes time)
-      } else if (queue.isActive() && Date.now() - getQueue()[0]!.player.startPlayingAt > 2000) {
+      } else if (queue.isActive() && Date.now() - getQueue()[0]!.player.startPlayingAt > 4500) {
         setNextPlayer()
       }
     }
