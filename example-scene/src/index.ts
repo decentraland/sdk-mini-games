@@ -4,10 +4,11 @@ import { engine, GltfContainer, pointerEventsSystem, Transform } from '@dcl/sdk/
 
 import { changeColorSystem, circularSystem } from './systems'
 
-import { initLibrary, queue, sceneParentEntity } from '@dcl-sdk/mini-games/src'
+import { initLibrary, queue, sceneParentEntity, ui } from '@dcl-sdk/mini-games/src'
 import { syncEntity } from '@dcl/sdk/network'
 import players from '@dcl/sdk/players'
 import { createCube } from './factory'
+import { movePlayerTo } from '~system/RestrictedActions'
 
 const _1_SEC = 1000
 const _1_MIN = _1_SEC * 60
@@ -29,7 +30,6 @@ export function main() {
   engine.addSystem(circularSystem)
   engine.addSystem(changeColorSystem)
 
-  const playGameCube = createCube(2, 1, 2, Color4.Green())
   const finishCube = createCube(2, 4, 2, Color4.Red())
 
   const fence = engine.addEntity()
@@ -43,11 +43,22 @@ export function main() {
     rotation: Quaternion.fromEulerDegrees(0, -90, 0)
   })
 
-  // Add player to the qeue.
-  pointerEventsSystem.onPointerDown({ entity: playGameCube, opts: { hoverText: 'Start game' } }, () => {
-    queue.addPlayer()
-    console.log('Current queue', queue.getQueue())
-  })
+  // Add the Play Button to the fence instead of the old start game cube.
+  new ui.MenuButton(
+    {
+      parent: sceneParentEntity,
+      position: Vector3.create(-3.74, 1.03, 0),
+      rotation: Quaternion.fromEulerDegrees(-45, 90, 0),
+      scale: Vector3.create(1.2, 1.2, 1.2)
+    },
+    ui.uiAssets.shapes.RECT_GREEN,
+    ui.uiAssets.icons.playText,
+    'PLAY GAME',
+    () => {
+      queue.addPlayer()
+      console.log('Current queue', queue.getQueue())
+    }
+  )
 
   // End Game.
   pointerEventsSystem.onPointerDown({ entity: finishCube, opts: { hoverText: 'Finish game' } }, () => {
@@ -56,10 +67,19 @@ export function main() {
   })
 
   queue.listeners.onActivePlayerChange = (player) => {
+    // If the user is the active player, move it to the game area
+    if (queue.isActive()) {
+      startGame()
+      void movePlayerTo({ newRelativePosition: Vector3.create(6.5, 2, 8), cameraTarget: Vector3.create(13, 2, 8) })
+    }
     console.log('active player changed', player)
     console.log('Current queue', queue.getQueue())
     // here you can set the logic to start the new game
     // such as reset the old state, move the player inside the area, set a coutner to start the game, etc.
     // game.startNewGame()
   }
+}
+
+function startGame() {
+  // reset the game logic, and prepare the game.
 }
