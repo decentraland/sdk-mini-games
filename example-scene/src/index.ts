@@ -1,10 +1,10 @@
 // We define the empty imports so the auto-complete feature works as expected.
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
-import { engine, GltfContainer, pointerEventsSystem, Transform } from '@dcl/sdk/ecs'
+import { AudioSource, engine, Entity, GltfContainer, pointerEventsSystem, Schemas, Transform } from '@dcl/sdk/ecs'
 
 import { changeColorSystem, circularSystem } from './systems'
 
-import { initLibrary, queue, sceneParentEntity, ui } from '@dcl-sdk/mini-games/src'
+import { initLibrary, queue, sceneParentEntity, ui, progress } from '@dcl-sdk/mini-games/src'
 import { syncEntity } from '@dcl/sdk/network'
 import players from '@dcl/sdk/players'
 import { createCube } from './factory'
@@ -24,12 +24,15 @@ initLibrary(engine, syncEntity, players, {
     exitSpawnPoint: Vector3.create(0, 0, 7)
   }
 })
+let gameDataEntity: Entity
+enum SyncEntityEnums {
+  GameData = 1
+}
 
 export function main() {
-  // Defining behavior. See `src/systems.ts` file.
-  engine.addSystem(circularSystem)
-  engine.addSystem(changeColorSystem)
-
+  gameDataEntity = engine.addEntity()
+  // Syncronize GameData so every user can see in which level, time, etc the current player is at.
+  syncEntity(gameDataEntity, [GameData.componentId], SyncEntityEnums.GameData)
   const finishCube = createCube(2, 4, 2, Color4.Red())
 
   const fence = engine.addEntity()
@@ -62,6 +65,7 @@ export function main() {
 
   // End Game.
   pointerEventsSystem.onPointerDown({ entity: finishCube, opts: { hoverText: 'Finish game' } }, () => {
+    void onFinishLevel()
     queue.setNextPlayer()
     console.log('Current queue', queue.getQueue())
   })
@@ -82,4 +86,38 @@ export function main() {
 
 function startGame() {
   // reset the game logic, and prepare the game.
+  GameData.createOrReplace(gameDataEntity, {
+    levelFinishedAt: undefined,
+    moves: 0,
+    levelStartedAt: Date.now(),
+    currentLevel: 0
+  })
+}
+
+const GameData = engine.defineComponent('game-data', {
+  moves: Schemas.Number,
+  levelStartedAt: Schemas.Int64,
+  levelFinishedAt: Schemas.Int64,
+  currentLevel: Schemas.Number
+})
+
+async function onFinishLevel() {
+  try {
+    const gameData = GameData.getMutable(gameDataEntity)
+    gameData.levelFinishedAt = Date.now()
+    const sounds = engine.addEntity()
+    AudioSource.createOrReplace(sounds, {
+      audioClipUrl: 'sounds/win.mp3',
+      playing: true,
+      volume: 2
+    })
+
+    await progress.upsertProgress({
+      level: gameData.currentLevel,
+      time: gameData.levelFinishedAt - gameData.levelStartedAt,
+      moves: gameData.moves
+    })
+  } catch (e) {
+    console.log('Error', e)
+  }
 }
