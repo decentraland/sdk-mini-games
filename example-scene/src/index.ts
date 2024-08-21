@@ -2,9 +2,8 @@
 import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import { AudioSource, engine, Entity, GltfContainer, pointerEventsSystem, Schemas, Transform } from '@dcl/sdk/ecs'
 
-import { changeColorSystem, circularSystem } from './systems'
-
 import { initLibrary, queue, sceneParentEntity, ui, progress } from '@dcl-sdk/mini-games/src'
+
 import { syncEntity } from '@dcl/sdk/network'
 import players from '@dcl/sdk/players'
 import { createCube } from './factory'
@@ -84,13 +83,16 @@ export function main() {
   }
 }
 
-function startGame() {
+async function startGame() {
+  const maxProgress = (await progress.getProgress('level', progress.SortDirection.DESC, 1))![0]
+  const maxLevelPlayed = maxProgress.level ?? 0
+
   // reset the game logic, and prepare the game.
   GameData.createOrReplace(gameDataEntity, {
     levelFinishedAt: undefined,
     moves: 0,
     levelStartedAt: Date.now(),
-    currentLevel: 0
+    currentLevel: maxLevelPlayed
   })
 }
 
