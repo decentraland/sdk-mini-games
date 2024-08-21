@@ -14,7 +14,7 @@ import { Color4 } from '@dcl/sdk/math'
 import { getRandomHexColor } from './utils'
 
 // Cube factory
-export function createCube(x: number, y: number, z: number, spawner = true): Entity {
+export function createCube(x: number, y: number, z: number, color?: Color4): Entity {
   const entity = engine.addEntity()
 
   // Used to track the cubes
@@ -25,7 +25,7 @@ export function createCube(x: number, y: number, z: number, spawner = true): Ent
   // set how the cube looks and collides
   MeshRenderer.setBox(entity)
   MeshCollider.setBox(entity)
-  Material.setPbrMaterial(entity, { albedoColor: Color4.fromHexString(getRandomHexColor()) })
+  Material.setPbrMaterial(entity, { albedoColor: color ?? Color4.fromHexString(getRandomHexColor()) })
 
   // Make the cube spin, with the circularSystem
   Spinner.create(entity, { speed: 100 * Math.random() })
