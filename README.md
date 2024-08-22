@@ -55,6 +55,10 @@ Checks if the current user is the active player.
 #### queue.getQueue(): Player[]
 Returns an array of players in the queue, sorted by the ime they join the queue.
 
+#### queue.initQueueDisplay(displayTransform: TransformType): void
+Create a display on the scene that informs the player the current status of the queue.
+After installing the library needs to place display glb model in `mini-game-assets/models/queueDisplay/workstation_display.glb`
+
 ### Listener for active player updates
 #### listeners.onActivePlayerChange
 
@@ -68,6 +72,7 @@ type PlayerType = {
   active: boolean;
 }
 ```
+
 ## [Step 3: Scene Rotation + Game Area Checker + Timeout](https://github.com/decentraland/sdk-mini-games/pull/21/files)
 
 ### Scene Rotation
