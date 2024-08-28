@@ -123,7 +123,7 @@ export function setNextPlayer() {
     Player.getMutable(nextPlayer.entity).startPlayingAt = Date.now()
   }
 
-  if (listeners.onActivePlayerChange) {
+  if (listeners.onActivePlayerChange && activePlayer?.address !== nextPlayer?.player.address) {
     listeners.onActivePlayerChange(Player.getOrNull(nextPlayer?.entity))
   }
 }
