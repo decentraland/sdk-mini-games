@@ -12,6 +12,7 @@ export type IOptions = {
   gameId: string
   environment: string
   gameTimeoutMs?: number
+  inactiveTimeoutMs?: number
   sceneRotation?: number
   gameArea?: {
     topLeft: TransformType['position']

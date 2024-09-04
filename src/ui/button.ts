@@ -104,13 +104,6 @@ export class MenuButton {
     })
 
     engine.addSystem(() => {
-      // TODO: Why is not been triggered ?
-      // if (tweenSystem.tweenCompleted(this.button)) {
-      //   console.log('asd', Tween.getOrNull(this.button))
-      // }
-
-      // TODO: this should be tweenCompleted but no idea why is not working :sadcat:
-      // if (TweenState.getOrNull(this.button)?.currentTime === 1 && TweenSequence.getOrNull(this.button)) {
       if (tweenSystem.tweenCompleted(this.button)) {
         if (!TweenSequence.get(this.button).sequence.length) {
           this.enable()
