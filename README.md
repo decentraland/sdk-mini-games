@@ -100,6 +100,7 @@ miniGames.initLibrary(engine as any, syncEntity, playersApi, {
     environment: "dev",
     // time in ms
     gameTimeoutMs: _1_MIN,
+    inactiveTimeoutMs: 20 * _1_SEC_,
     // game area rectangle
     gameArea: {
       // top left point
