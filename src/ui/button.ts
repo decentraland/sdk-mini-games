@@ -21,6 +21,7 @@ export class MenuButton {
   buttonShapeDisabled: ButtonShapeData
   iconGlowMat: PBMaterial_PbrMaterial
   iconDisabledMat: PBMaterial_PbrMaterial
+  releaseTime: number
 
   constructor(
     transform: TransformTypeWithOptionals,
@@ -28,7 +29,8 @@ export class MenuButton {
     icon: IconData,
     _hoverText: string,
     callback: () => void,
-    enabledByDefault?: boolean
+    enabledByDefault?: boolean,
+    releaseTime: number = 500
   ) {
     const {
       engine,
@@ -41,8 +43,7 @@ export class MenuButton {
         PointerEvents,
         VisibilityComponent,
         Tween,
-        TweenSequence,
-        TweenState
+        TweenSequence
       },
       tweenSystem
     } = getSDK()
@@ -51,6 +52,8 @@ export class MenuButton {
     if (enabledByDefault) {
       this.enabled = enabledByDefault
     }
+
+    this.releaseTime = releaseTime
 
     this.buttonShapeEnabled = buttonShapeData
     this.buttonShapeDisabled = uiAssets.shapes.RECT_BLACK
@@ -102,13 +105,15 @@ export class MenuButton {
 
     engine.addSystem(() => {
       // TODO: Why is not been triggered ?
-      if (tweenSystem.tweenCompleted(this.button)) {
-        console.log('asd', Tween.getOrNull(this.button))
-      }
+      // if (tweenSystem.tweenCompleted(this.button)) {
+      //   console.log('asd', Tween.getOrNull(this.button))
+      // }
 
       // TODO: this should be tweenCompleted but no idea why is not working :sadcat:
-      if (TweenState.getOrNull(this.button)?.currentTime === 1 && TweenSequence.getOrNull(this.button)) {
+      // if (TweenState.getOrNull(this.button)?.currentTime === 1 && TweenSequence.getOrNull(this.button)) {
+      if (tweenSystem.tweenCompleted(this.button)) {
         if (!TweenSequence.get(this.button).sequence.length) {
+          this.enable()
           // Tween.deleteFrom(this.button)
           TweenSequence.deleteFrom(this.button)
           VisibilityComponent.getMutable(this.glowPlane).visible = false
@@ -120,11 +125,13 @@ export class MenuButton {
           }
         }
       }
+      // this.disable()
 
       if (inputSystem.isTriggered(InputAction.IA_POINTER, PointerEventType.PET_DOWN, this.button)) {
         if (this.enabled) {
           callback()
           this.playSound('mini-game-assets/sounds/button_click.mp3')
+          this.disable()
           //flash the emissive of the icon
           Material.setPbrMaterial(this.icon, {
             texture: Material.Texture.Common({ src: uiAtlas }),
@@ -137,7 +144,7 @@ export class MenuButton {
           VisibilityComponent.getMutable(this.glowPlane).visible = true
           //tween button inward
           Tween.createOrReplace(this.button, {
-            duration: 500,
+            duration: this.releaseTime / 2,
             currentTime: 0,
             playing: true,
             easingFunction: EasingFunction.EF_EASEOUTSINE,
@@ -146,7 +153,7 @@ export class MenuButton {
           TweenSequence.createOrReplace(this.button, {
             sequence: [
               {
-                duration: 500,
+                duration: this.releaseTime / 2,
                 currentTime: 0,
                 playing: true,
                 easingFunction: EasingFunction.EF_EASEOUTSINE,

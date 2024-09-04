@@ -123,7 +123,7 @@ We already implement the generic UI to use inside the mini-games. Like the Play 
 #### Menu Button UI
 
 ```ts
-// MenuButton(position: TransformType, assetShape, assetIcon, hoverText, callback)
+// MenuButton(position: TransformType, assetShape, assetIcon, hoverText, callback, enabledByDefault (optional), releaseTime (optional) )
 import { ui } from '@dcl-sdk/mini-games/src'
 
 // All the available icons
