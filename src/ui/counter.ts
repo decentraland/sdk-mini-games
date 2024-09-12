@@ -78,9 +78,8 @@ export class Counter3D {
   }
 
   justifyNumber(){
-    const {
-      engine,
-      components: { Transform, GltfContainer, VisibilityComponent }
+    const {      
+      components: { Transform}
     } = getSDK()
     let numberArr = separateDigits(this.currentNumber)
     let offset = 0
