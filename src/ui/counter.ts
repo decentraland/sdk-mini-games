@@ -3,7 +3,6 @@ import { Vector3 } from '@dcl/sdk/math'
 import { syncEntity } from '@dcl/sdk/network'
 import { getSDK } from '../sdk'
 
-
 type justification = 'left' | 'right' | 'center'
 
 function separateDigits(value: number): number[] {
@@ -33,7 +32,7 @@ export class Counter3D {
   spacing: number = 1
   currentNumber: number = 0
   zeroPadding: boolean
-  justify:justification = 'center'
+  justify: justification = 'center'
 
   constructor(
     transform: TransformTypeWithOptionals,
@@ -41,7 +40,7 @@ export class Counter3D {
     digitSpacing: number,
     zeroPadding: boolean,
     id: number,
-    justify?:justification
+    justify?: justification
   ) {
     const {
       engine,
@@ -54,7 +53,7 @@ export class Counter3D {
     this.maxDigits = maxDigits
     this.zeroPadding = zeroPadding
     this.id = id
-    this.justify = justify?justify:'center'
+    this.justify = justify ? justify : 'center'
 
     this.addDigits()
   }
@@ -77,45 +76,41 @@ export class Counter3D {
     }
   }
 
-  justifyNumber(){
-    const {      
-      components: { Transform}
+  justifyNumber() {
+    const {
+      components: { Transform }
     } = getSDK()
-    let numberArr = separateDigits(this.currentNumber)
+    const numberArr = separateDigits(this.currentNumber)
     let offset = 0
 
-    switch(this.justify){
-      case 'left':{
+    switch (this.justify) {
+      case 'left': {
         offset = 0
-        break;
+        break
       }
-      case 'right':{
-        if(!this.zeroPadding){
-          offset = -(numberArr.length-1) * this.spacing
-        }else{
-          offset = -(this.digits.length-1) * this.spacing
+      case 'right': {
+        if (!this.zeroPadding) {
+          offset = -(numberArr.length - 1) * this.spacing
+        } else {
+          offset = -(this.digits.length - 1) * this.spacing
         }
-        
-        break;
+
+        break
       }
-      case 'center':{
-        if(!this.zeroPadding){
-          offset = -((numberArr.length-1) * this.spacing)/2
-        }else{
-          offset = -((this.digits.length-1) * this.spacing)/2
+      case 'center': {
+        if (!this.zeroPadding) {
+          offset = -((numberArr.length - 1) * this.spacing) / 2
+        } else {
+          offset = -((this.digits.length - 1) * this.spacing) / 2
         }
-       
-        break;
+
+        break
       }
     }
 
-    
-    for(let i=0; i < this.digits.length; i++){
-
-      Transform.getMutable(this.digits[i]).position = Vector3.create(i * this.spacing + offset, 0, 0)     
+    for (let i = 0; i < this.digits.length; i++) {
+      Transform.getMutable(this.digits[i]).position = Vector3.create(i * this.spacing + offset, 0, 0)
     }
-    
-
   }
 
   setNumber(_number: number) {
