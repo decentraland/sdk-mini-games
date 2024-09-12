@@ -53,7 +53,7 @@ export class Counter3D {
     this.maxDigits = maxDigits
     this.zeroPadding = zeroPadding
     this.id = id
-    this.justify = justify ? justify : 'center'
+    this.justify = justify ?? 'center'
 
     this.addDigits()
   }
