@@ -3,6 +3,8 @@ import { Vector3 } from '@dcl/sdk/math'
 import { syncEntity } from '@dcl/sdk/network'
 import { getSDK } from '../sdk'
 
+type justification = 'left' | 'right' | 'center'
+
 function separateDigits(value: number): number[] {
   const arr: number[] = []
   let lastDigit: number
@@ -30,13 +32,15 @@ export class Counter3D {
   spacing: number = 1
   currentNumber: number = 0
   zeroPadding: boolean
+  justify: justification = 'center'
 
   constructor(
     transform: TransformTypeWithOptionals,
     maxDigits: number,
     digitSpacing: number,
     zeroPadding: boolean,
-    id: number
+    id: number,
+    justify?: justification
   ) {
     const {
       engine,
@@ -49,9 +53,11 @@ export class Counter3D {
     this.maxDigits = maxDigits
     this.zeroPadding = zeroPadding
     this.id = id
+    this.justify = justify ?? 'center'
 
     this.addDigits()
   }
+
   addDigits() {
     const {
       engine,
@@ -66,7 +72,44 @@ export class Counter3D {
       VisibilityComponent.createOrReplace(numberEntity)
       this.digits.push(numberEntity)
 
-      syncEntity(numberEntity, [GltfContainer.componentId], this.id * 20000 + i)
+      syncEntity(numberEntity, [Transform.componentId, GltfContainer.componentId], this.id * 20000 + i)
+    }
+  }
+
+  justifyNumber() {
+    const {
+      components: { Transform }
+    } = getSDK()
+    const numberArr = separateDigits(this.currentNumber)
+    let offset = 0
+
+    switch (this.justify) {
+      case 'left': {
+        offset = 0
+        break
+      }
+      case 'right': {
+        if (!this.zeroPadding) {
+          offset = -(numberArr.length - 1) * this.spacing
+        } else {
+          offset = -(this.digits.length - 1) * this.spacing
+        }
+
+        break
+      }
+      case 'center': {
+        if (!this.zeroPadding) {
+          offset = -((numberArr.length - 1) * this.spacing) / 2
+        } else {
+          offset = -((this.digits.length - 1) * this.spacing) / 2
+        }
+
+        break
+      }
+    }
+
+    for (let i = 0; i < this.digits.length; i++) {
+      Transform.getMutable(this.digits[i]).position = Vector3.create(i * this.spacing + offset, 0, 0)
     }
   }
 
@@ -94,6 +137,8 @@ export class Counter3D {
         }
       }
     }
+
+    this.justifyNumber()
   }
 
   reduceNumberBy(_decrement: number) {
