@@ -64,7 +64,7 @@ export function addHeaderText(entity: Entity, text: string, fontSize: number, al
 
 export class HeaderRow {
   nameHeader: Entity
-  currentColumnStart: number = 1
+  currentColumnStart: number = 0.98
   headers: Entity[] = []
 
   constructor(columnData: Column[], width: number, height: number, parent: Entity, fontSize: number) {

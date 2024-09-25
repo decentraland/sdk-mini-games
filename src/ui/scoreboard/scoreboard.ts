@@ -75,7 +75,7 @@ class ScoreRow {
     })
 
     this.valueEntities = []
-    let currentColumnStart = 1
+    let currentColumnStart = 0.98
 
     for (let i = columnData.length - 1; i >= 0; i--) {
       const valueEntity = engine.addEntity()
