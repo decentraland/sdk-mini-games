@@ -4,7 +4,7 @@ import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import { MenuButton } from '../button'
 import { uiAssets } from '../resources'
 import { timeStringFromMs } from '../utilities'
-import { ColumnData, HeaderRow } from './columnData'
+import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
 import { getSDK } from '../../sdk'
 
 class ScoreRow {
@@ -17,15 +17,12 @@ class ScoreRow {
 
   placeEntity: Entity
   nameEntity: Entity
-  scoreEntity?: Entity
-  timeEntity?: Entity
-  movesEntity?: Entity
-  levelEntity?: Entity
+  valueEntities: Entity[]
 
   constructor(
     place: number,
     scoreData: any,
-    columnData: ColumnData,
+    columnData: Column[],
     width: number,
     height: number,
     parent: Entity,
@@ -45,7 +42,7 @@ class ScoreRow {
     //placement number
     this.placeEntity = engine.addEntity()
     Transform.create(this.placeEntity, {
-      position: Vector3.create(columnData.placementStart * width, height, 0),
+      position: Vector3.create(PLACEMENT_START * width, height, 0),
       parent: parent
     })
     TextShape.createOrReplace(this.placeEntity, {
@@ -61,7 +58,7 @@ class ScoreRow {
     //player name
     this.nameEntity = engine.addEntity()
     Transform.create(this.nameEntity, {
-      position: Vector3.create(columnData.nameStart * width, height, 0),
+      position: Vector3.create(NAME_START * width, height, 0),
       parent: parent
     })
     TextShape.createOrReplace(this.nameEntity, {
@@ -77,15 +74,39 @@ class ScoreRow {
       outlineWidth: 0.2
     })
 
-    //score
-    if (columnData.scoreStart && scoreData.score) {
-      this.scoreEntity = engine.addEntity()
-      Transform.create(this.scoreEntity, {
-        position: Vector3.create(columnData.scoreStart * width, height, 0),
+    this.valueEntities = []
+    let currentColumnStart = 1
+
+    for (let i = columnData.length - 1; i >= 0; i--) {
+      const valueEntity = engine.addEntity()
+      Transform.create(valueEntity, {
+        position: Vector3.create(currentColumnStart * width, height, 0),
         parent: parent
       })
-      TextShape.createOrReplace(this.scoreEntity, {
-        text: scoreData.score.toString(),
+
+      let valueText = 'NaN'
+
+      switch (columnData[i].type) {
+        case SCOREBOARD_VALUE_TYPE.LEVEL: {
+          valueText = 'Level ' + scoreData.level.toString()
+          break
+        }
+        case SCOREBOARD_VALUE_TYPE.SCORE: {
+          valueText = scoreData.score.toString()
+          break
+        }
+        case SCOREBOARD_VALUE_TYPE.TIME: {
+          valueText = timeStringFromMs(scoreData.time)
+          break
+        }
+        case SCOREBOARD_VALUE_TYPE.MOVES: {
+          valueText = scoreData.moves.toString()
+          break
+        }
+      }
+
+      TextShape.createOrReplace(valueEntity, {
+        text: valueText,
         fontSize: fontSize,
         textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
         textColor: Color4.fromHexString('#ff2d55ff'),
@@ -93,82 +114,23 @@ class ScoreRow {
         outlineWidth: 0.2,
         font: Font.F_SANS_SERIF
       })
-    }
 
-    //time
-    if (columnData.timeStart && scoreData.time) {
-      this.timeEntity = engine.addEntity()
-      Transform.create(this.timeEntity, {
-        position: Vector3.create(columnData.timeStart * width, height, 0),
-        parent: parent
-      })
-      TextShape.createOrReplace(this.timeEntity, {
-        text: timeStringFromMs(scoreData.time),
-        fontSize: fontSize,
-        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
-        textColor: Color4.fromHexString('#ff2d55ff'),
-        outlineColor: Color4.fromHexString('#ff2d55ff'),
-        outlineWidth: 0.2,
-        font: Font.F_SANS_SERIF
-      })
-    }
-
-    //moves
-    if (columnData.movesStart && scoreData.moves) {
-      this.movesEntity = engine.addEntity()
-      Transform.create(this.movesEntity, {
-        position: Vector3.create(columnData.movesStart * width, height, 0),
-        parent: parent
-      })
-      TextShape.createOrReplace(this.movesEntity, {
-        text: scoreData.moves.toString(),
-        fontSize: fontSize,
-        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
-        font: Font.F_SANS_SERIF,
-        textColor: Color4.Black(),
-        outlineColor: Color4.Black(),
-        outlineWidth: 0.2
-      })
-    }
-
-    //level
-    if (columnData.levelStart && scoreData.level) {
-      this.levelEntity = engine.addEntity()
-      Transform.create(this.levelEntity, {
-        position: Vector3.create(columnData.levelStart * width, height, 0),
-        parent: parent
-      })
-      TextShape.createOrReplace(this.levelEntity, {
-        text: 'Level ' + scoreData.level.toString(),
-        fontSize: fontSize,
-        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
-        font: Font.F_SANS_SERIF,
-        textColor: Color4.Black(),
-        outlineColor: Color4.Black(),
-        outlineWidth: 0.2
-      })
+      currentColumnStart -= columnData[i].valueFieldWidth
+      this.valueEntities.push(valueEntity)
     }
   }
 
   removeRow() {
     const { engine } = getSDK()
-    if (this.levelEntity) {
-      engine.removeEntity(this.levelEntity)
-    }
-    if (this.scoreEntity) {
-      engine.removeEntity(this.scoreEntity)
+
+    for (let i = 0; i < this.valueEntities.length; i++) {
+      engine.removeEntity(this.valueEntities[i])
     }
     if (this.nameEntity) {
       engine.removeEntity(this.nameEntity)
     }
-    if (this.timeEntity) {
-      engine.removeEntity(this.timeEntity)
-    }
     if (this.placeEntity) {
       engine.removeEntity(this.placeEntity)
-    }
-    if (this.movesEntity) {
-      engine.removeEntity(this.movesEntity)
     }
   }
 }
@@ -185,14 +147,14 @@ export class ScoreBoard {
   header: HeaderRow
   rowHeight: number
   fontScale: number
-  columnData: ColumnData
+  columnData: Column[]
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
     boardWidth: number,
     boardHeight: number,
     fontScale: number,
-    _columnData: ColumnData
+    _columnData: Column[]
   ) {
     const { engine } = getSDK()
 
@@ -236,7 +198,6 @@ export class ScoreBoard {
       'PREVIOUS PAGE',
       () => {
         console.log('PREV PAGE PRESSED')
-        //this.loadScores(scoreData, POINTS_TIME )
       }
     )
 
@@ -252,7 +213,6 @@ export class ScoreBoard {
       'NEXT PAGE',
       () => {
         console.log('NEXT PAGE PRESSED')
-        //  this.loadScores(scoreData, TIME_LEVEL )
       }
     )
 
@@ -266,7 +226,7 @@ export class ScoreBoard {
     // https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
     //let scores: any[] = []
     const url =
-      'https://exploration-games.decentraland.zone/api/games/' + GAME_ID + '/leaderboard?sort=time&direction=ASC'
+      'https://exploration-games.decentraland.zone/api/games/' + GAME_ID + '/leaderboard?sort=score&direction=DESC'
 
     try {
       const response = await fetch(url)
@@ -302,7 +262,7 @@ export class ScoreBoard {
       console.log(json)
       return this.scores
     } catch (e) {
-      console.log('error getting trending scene data ', e)
+      console.log('error getting score data ', e)
     }
   }
 }
