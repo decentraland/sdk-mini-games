@@ -72,7 +72,11 @@ export class Counter3D {
       VisibilityComponent.createOrReplace(numberEntity)
       this.digits.push(numberEntity)
 
-      syncEntity(numberEntity, [Transform.componentId, GltfContainer.componentId], this.id * 20000 + i)
+      syncEntity(
+        numberEntity,
+        [Transform.componentId, GltfContainer.componentId, VisibilityComponent.componentId],
+        this.id * 20000 + i
+      )
     }
   }
 
