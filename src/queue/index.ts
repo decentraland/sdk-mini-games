@@ -172,13 +172,6 @@ function internalPlayerSystem() {
     ) {
       setNextPlayer()
     }
-
-    // Remove disconected players
-    for (const { player } of getQueue()) {
-      if (!isPlayerConnected(player.address)) {
-        removePlayer(player.address)
-      }
-    }
   }
 }
 
