@@ -7,6 +7,8 @@ import { timeStringFromMs } from '../utilities'
 import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
 import { getSDK } from '../../sdk'
 
+type sortOrder = 'asc' | 'desc'
+
 class ScoreRow {
   place: number
   name: string
@@ -148,13 +150,17 @@ export class ScoreBoard {
   rowHeight: number
   fontScale: number
   columnData: Column[]
+  sortDirection: sortOrder = 'desc'
+  sortBy: SCOREBOARD_VALUE_TYPE = SCOREBOARD_VALUE_TYPE.LEVEL
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
     boardWidth: number,
     boardHeight: number,
     fontScale: number,
-    _columnData: Column[]
+    _columnData: Column[],
+    sortBy?: SCOREBOARD_VALUE_TYPE,
+    sortDirection?: sortOrder
   ) {
     const { engine } = getSDK()
 
@@ -169,6 +175,8 @@ export class ScoreBoard {
     this.columnData = _columnData
     this.scores = []
     this.uiRoot = engine.addEntity()
+    this.sortBy = sortBy ? sortBy : SCOREBOARD_VALUE_TYPE.LEVEL
+    this.sortDirection = sortDirection ? sortDirection : 'desc'
 
     //https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
 
@@ -223,10 +231,58 @@ export class ScoreBoard {
   async getScores() {
     const { config } = getSDK()
     const GAME_ID = config.gameId ?? '5728b531-4760-4647-a843-d164283dae6d'
-    // https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
-    //let scores: any[] = []
+
+    let urlEnding = 'org'
+    if (config.environment === 'dev') {
+      urlEnding = 'zone'
+    }
+    if (config.environment === 'prod') {
+      urlEnding = 'org'
+    }
+    // empty string will sort by level (default server setting)
+    let sortString = ''
+
+    switch (this.sortBy) {
+      case SCOREBOARD_VALUE_TYPE.LEVEL: {
+        sortString = ''
+        break
+      }
+      case SCOREBOARD_VALUE_TYPE.TIME: {
+        sortString = 'time'
+        break
+      }
+      case SCOREBOARD_VALUE_TYPE.SCORE: {
+        sortString = 'score'
+        break
+      }
+      case SCOREBOARD_VALUE_TYPE.MOVES: {
+        sortString = 'moves'
+        break
+      }
+    }
+
+    let sorDirString = 'DESC'
+
+    switch (this.sortDirection) {
+      case 'asc': {
+        sorDirString = 'ASC'
+        break
+      }
+      case 'desc': {
+        sorDirString = 'DESC'
+        break
+      }
+    }
+
     const url =
-      'https://exploration-games.decentraland.zone/api/games/' + GAME_ID + '/leaderboard?sort=score&direction=DESC'
+      'https://exploration-games.decentraland.' +
+      urlEnding +
+      '/api/games/' +
+      GAME_ID +
+      '/leaderboard?sort=' +
+      sortString +
+      '&direction=' +
+      sorDirString
 
     try {
       const response = await fetch(url)
