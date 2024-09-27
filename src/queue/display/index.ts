@@ -183,8 +183,9 @@ function updateScreenSystem() {
       if (currentScreen === SCREENS.queueList) {
         //in waiting list, finished enter queue screen
         enable()
-
-        const playerNames = playerQueue.map((item) => players.getPlayer({ userId: item.player.address })?.name).slice(1)
+        const playerNames = playerQueue
+          .map((item) => players.getPlayer({ userId: item.player.address })?.name)
+          .slice(1, 5)
 
         TextShape.createOrReplace(waitingListEntity, {
           text: playerNames.join('\n'),
