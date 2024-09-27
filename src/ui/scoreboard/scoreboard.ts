@@ -236,7 +236,7 @@ export class ScoreBoard {
     if (config.environment === 'dev') {
       urlEnding = 'zone'
     }
-    if (config.environment === 'prod') {
+    if (config.environment === 'prd') {
       urlEnding = 'org'
     }
     // empty string will sort by level (default server setting)
