@@ -9,6 +9,13 @@ import { getSDK } from '../../sdk'
 
 type sortOrder = 'asc' | 'desc'
 
+type scoreboardConfig = {
+  showButtons: boolean
+  frameGLB?: string
+  sortBy?: SCOREBOARD_VALUE_TYPE
+  sortDirection?: sortOrder
+}
+
 class ScoreRow {
   place: number
   name: string
@@ -140,8 +147,8 @@ class ScoreRow {
 export class ScoreBoard {
   uiRoot: Entity
   frame: Entity
-  buttonLeft: MenuButton
-  buttonRight: MenuButton
+  buttonLeft?: MenuButton
+  buttonRight?: MenuButton
   width: number
   height: number
   rowsVisible: number = 10
@@ -152,6 +159,8 @@ export class ScoreBoard {
   columnData: Column[]
   sortDirection: sortOrder = 'desc'
   sortBy: SCOREBOARD_VALUE_TYPE = SCOREBOARD_VALUE_TYPE.LEVEL
+  showButtons: boolean = false
+  frameGLB: string = uiAssets.scoreboard.scoreboardBackgroundLight
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
@@ -159,8 +168,7 @@ export class ScoreBoard {
     boardHeight: number,
     fontScale: number,
     _columnData: Column[],
-    sortBy?: SCOREBOARD_VALUE_TYPE,
-    sortDirection?: sortOrder
+    config?: scoreboardConfig
   ) {
     const { engine } = getSDK()
 
@@ -175,8 +183,13 @@ export class ScoreBoard {
     this.columnData = _columnData
     this.scores = []
     this.uiRoot = engine.addEntity()
-    this.sortBy = sortBy ? sortBy : SCOREBOARD_VALUE_TYPE.LEVEL
-    this.sortDirection = sortDirection ? sortDirection : 'desc'
+
+    if (config) {
+      this.sortBy = config.sortBy ? config.sortBy : SCOREBOARD_VALUE_TYPE.LEVEL
+      this.sortDirection = config.sortDirection ? config.sortDirection : 'desc'
+      this.showButtons = config.showButtons ? config.showButtons : false
+      this.frameGLB = config.frameGLB ? config.frameGLB : uiAssets.scoreboard.scoreboardBackgroundLight
+    }
 
     //https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
 
@@ -192,37 +205,38 @@ export class ScoreBoard {
       scale: Vector3.create(this.width, this.height, 1),
       parent: this.uiRoot
     })
-    GltfContainer.create(this.frame, { src: uiAssets.scoreboard.scoreboardBackgroundLight })
+    GltfContainer.create(this.frame, { src: this.frameGLB })
+    if (this.showButtons) {
+      this.buttonLeft = new MenuButton(
+        {
+          position: Vector3.create(-buttonSize / 4, -this.height * 0.5, 0),
+          rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
+          scale: Vector3.create(buttonSize, buttonSize, buttonSize),
+          parent: this.uiRoot
+        },
+        uiAssets.shapes.SQUARE_RED,
+        uiAssets.icons.leftArrow,
+        'PREVIOUS PAGE',
+        () => {
+          console.log('PREV PAGE PRESSED')
+        }
+      )
 
-    this.buttonLeft = new MenuButton(
-      {
-        position: Vector3.create(-buttonSize / 4, -this.height * 0.5, 0),
-        rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
-        scale: Vector3.create(buttonSize, buttonSize, buttonSize),
-        parent: this.uiRoot
-      },
-      uiAssets.shapes.SQUARE_RED,
-      uiAssets.icons.leftArrow,
-      'PREVIOUS PAGE',
-      () => {
-        console.log('PREV PAGE PRESSED')
-      }
-    )
-
-    this.buttonRight = new MenuButton(
-      {
-        position: Vector3.create(this.width + buttonSize / 4 - 0.05, -this.height * 0.5, 0),
-        rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
-        scale: Vector3.create(buttonSize, buttonSize, buttonSize),
-        parent: this.uiRoot
-      },
-      uiAssets.shapes.SQUARE_RED,
-      uiAssets.icons.rightArrow,
-      'NEXT PAGE',
-      () => {
-        console.log('NEXT PAGE PRESSED')
-      }
-    )
+      this.buttonRight = new MenuButton(
+        {
+          position: Vector3.create(this.width + buttonSize / 4 - 0.05, -this.height * 0.5, 0),
+          rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
+          scale: Vector3.create(buttonSize, buttonSize, buttonSize),
+          parent: this.uiRoot
+        },
+        uiAssets.shapes.SQUARE_RED,
+        uiAssets.icons.rightArrow,
+        'NEXT PAGE',
+        () => {
+          console.log('NEXT PAGE PRESSED')
+        }
+      )
+    }
 
     //this.loadScores(scoreData, TIME_LEVEL_MOVES)
     void this.getScores()
