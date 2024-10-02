@@ -45,6 +45,21 @@ export function main() {
     rotation: Quaternion.fromEulerDegrees(0, -90, 0)
   })
 
+  // Add scoreboard
+  const width = 2.5
+  const height = 2.8
+  const scale = 1.2
+  new ui.ScoreBoard(
+    {
+      position: Vector3.create(4, 4, 0.15),
+      rotation: Quaternion.fromEulerDegrees(0, 180, 0)
+    },
+    width,
+    height,
+    scale,
+    ui.TIME_LEVEL
+  )
+
   // Add the Play Button to the fence instead of the old start game cube.
   new ui.MenuButton(
     {
@@ -72,7 +87,7 @@ export function main() {
   queue.listeners.onActivePlayerChange = (player) => {
     // If the user is the active player, move it to the game area
     if (queue.isActive()) {
-      startGame()
+      void startGame()
       void movePlayerTo({ newRelativePosition: Vector3.create(6.5, 2, 8), cameraTarget: Vector3.create(13, 2, 8) })
     }
     console.log('active player changed', player)

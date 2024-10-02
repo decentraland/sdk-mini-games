@@ -1,4 +1,4 @@
-import { Entity } from '@dcl/sdk/ecs'
+import { Entity, InputAction, PointerEventType } from '@dcl/sdk/ecs'
 import { initQueueDisplay } from './display'
 import { getSDK } from '../sdk'
 
@@ -30,6 +30,7 @@ export function startPlayersQueue() {
   })
 
   engine.addSystem(internalPlayerSystem())
+  engine.addSystem(inputsCheckTimer())
 }
 /**
  * Add current player to the queue
@@ -121,9 +122,10 @@ export function setNextPlayer() {
     lastActivePlayer = nextPlayer.player.address
     Player.getMutable(nextPlayer.entity).active = true
     Player.getMutable(nextPlayer.entity).startPlayingAt = Date.now()
+    inactiveSince = Date.now()
   }
 
-  if (listeners.onActivePlayerChange) {
+  if (listeners.onActivePlayerChange && activePlayer?.address !== nextPlayer?.player.address) {
     listeners.onActivePlayerChange(Player.getOrNull(nextPlayer?.entity))
   }
 }
@@ -154,12 +156,10 @@ function internalPlayerSystem() {
     if (!activePlayer) {
       setNextPlayer()
     }
-
-    // TIMER for active player
     const { config } = getSDK()
+
+    // TIMER for active player and inactivity detection
     if (
-      // true Conditions
-      config.gameTimeoutMs &&
       activePlayer &&
       //
       // I'm the player playnig
@@ -167,21 +167,28 @@ function internalPlayerSystem() {
       //
       // If you are the only player connected, keep playing.
       getQueue().length > 1 &&
-      //
-      // Check if the time has passed
-      Date.now() - activePlayer.startPlayingAt >= config.gameTimeoutMs
+      ((config.gameTimeoutMs && Date.now() - activePlayer.startPlayingAt >= config.gameTimeoutMs) ||
+        (config.inactiveTimeoutMs && Date.now() > inactiveSince + config.inactiveTimeoutMs))
     ) {
       setNextPlayer()
     }
+  }
+}
 
-    // Remove disconected players
-    for (const { player } of getQueue()) {
-      if (!isPlayerConnected(player.address)) {
-        removePlayer(player.address)
-      }
+let inactiveSince = 0
+function inputsCheckTimer() {
+  return function () {
+    const { inputSystem } = getSDK()
+
+    if (!isActive()) return
+
+    //update player inactivty timer
+    if (inputSystem.isTriggered(InputAction.IA_ANY, PointerEventType.PET_DOWN)) {
+      inactiveSince = Date.now()
     }
   }
 }
+
 function isPlayerConnected(userId: string) {
   const {
     engine,
