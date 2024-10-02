@@ -59,8 +59,9 @@ export function initQueueDisplay(displayTransform: TransformType) {
   waitingListEntity = engine.addEntity()
   Transform.create(waitingListEntity, {
     parent: displayEntity,
-    position: Vector3.create(0, 0.48, 0.01),
-    rotation: Quaternion.fromEulerDegrees(0, 180, 0)
+    position: Vector3.create(0, 0.5, 0.01),
+    rotation: Quaternion.fromEulerDegrees(0, 180, 0),
+    scale: Vector3.create(0.75, 1, 1)
   })
   VisibilityComponent.create(waitingListEntity, { visible: false })
 
@@ -68,7 +69,8 @@ export function initQueueDisplay(displayTransform: TransformType) {
   Transform.create(myPosEntity, {
     parent: displayEntity,
     position: Vector3.create(-0.3, -0.2, 0.01),
-    rotation: Quaternion.fromEulerDegrees(0, 180, 0)
+    rotation: Quaternion.fromEulerDegrees(0, 180, 0),
+    scale: Vector3.create(0.75, 1, 1)
   })
   VisibilityComponent.create(myPosEntity, { visible: false })
 
@@ -191,13 +193,18 @@ function updateScreenSystem() {
           text: playerNames.join('\n'),
           fontSize: 1.1,
           textAlign: TextAlignMode.TAM_TOP_CENTER,
-          textColor: Color4.Black()
+          textColor: Color4.Black(),
+          outlineColor: Color4.Black(),
+          outlineWidth: 0.2
         })
 
         TextShape.createOrReplace(myPosEntity, {
           text: `${myPos}`,
           fontSize: 2,
-          textAlign: TextAlignMode.TAM_TOP_CENTER
+          textAlign: TextAlignMode.TAM_TOP_CENTER,
+          textColor: Color4.White(),
+          outlineColor: Color4.White(),
+          outlineWidth: 0.2
         })
       } else {
         //in waiting list, show enter queue screen
