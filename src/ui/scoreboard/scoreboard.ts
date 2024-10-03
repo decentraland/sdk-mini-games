@@ -6,6 +6,7 @@ import { uiAssets } from '../resources'
 import { timeStringFromMs } from '../utilities'
 import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
 import { getSDK } from '../../sdk'
+import { queue } from '../..'
 
 type sortOrder = 'asc' | 'desc'
 
@@ -240,6 +241,23 @@ export class ScoreBoard {
 
     //this.loadScores(scoreData, TIME_LEVEL_MOVES)
     void this.getScores()
+
+    //auto update scoreboard on queue length change
+    let lastQueue = queue.getQueue()
+    let scoreboardUpdateTimer = 0
+
+    engine.addSystem((dt: number) => {
+      scoreboardUpdateTimer += dt
+
+      if (scoreboardUpdateTimer < 0.25) return
+      scoreboardUpdateTimer = 0
+
+      const newQueue = queue.getQueue()
+      if (newQueue.length !== lastQueue.length) {
+        lastQueue = newQueue
+        void this.getScores()
+      }
+    })
   }
 
   async getScores() {
