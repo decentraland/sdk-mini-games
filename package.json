@@ -22,7 +22,7 @@
     "trailingComma": "none"
   },
   "dependencies": {
-    "@dcl/sdk": "^7.6.0"
+    "@dcl/sdk": "^7.5.8-11038883764.commit-7e87395"
   },
   "repository": {
     "url": "https://github.com/decentraland/sdk-mini-games"

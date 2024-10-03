@@ -105,7 +105,7 @@ export class MenuButton {
 
     engine.addSystem(() => {
       if (tweenSystem.tweenCompleted(this.button)) {
-        if (!TweenSequence.getOrNull(this.button)?.sequence.length) {
+        if (!TweenSequence.get(this.button).sequence.length) {
           this.enable()
           // Tween.deleteFrom(this.button)
           TweenSequence.deleteFrom(this.button)
