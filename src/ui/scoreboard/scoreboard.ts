@@ -4,17 +4,8 @@ import { Color4, Quaternion, Vector3 } from '@dcl/sdk/math'
 import { MenuButton } from '../button'
 import { uiAssets } from '../resources'
 import { timeStringFromMs } from '../utilities'
-import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
+import { ColumnData, HeaderRow } from './columnData'
 import { getSDK } from '../../sdk'
-
-type sortOrder = 'asc' | 'desc'
-
-type scoreboardConfig = {
-  showButtons: boolean
-  frameGLB?: string
-  sortBy?: SCOREBOARD_VALUE_TYPE
-  sortDirection?: sortOrder
-}
 
 class ScoreRow {
   place: number
@@ -26,12 +17,15 @@ class ScoreRow {
 
   placeEntity: Entity
   nameEntity: Entity
-  valueEntities: Entity[]
+  scoreEntity?: Entity
+  timeEntity?: Entity
+  movesEntity?: Entity
+  levelEntity?: Entity
 
   constructor(
     place: number,
     scoreData: any,
-    columnData: Column[],
+    columnData: ColumnData,
     width: number,
     height: number,
     parent: Entity,
@@ -51,7 +45,7 @@ class ScoreRow {
     //placement number
     this.placeEntity = engine.addEntity()
     Transform.create(this.placeEntity, {
-      position: Vector3.create(PLACEMENT_START * width, height, 0),
+      position: Vector3.create(columnData.placementStart * width, height, 0),
       parent: parent
     })
     TextShape.createOrReplace(this.placeEntity, {
@@ -67,7 +61,7 @@ class ScoreRow {
     //player name
     this.nameEntity = engine.addEntity()
     Transform.create(this.nameEntity, {
-      position: Vector3.create(NAME_START * width, height, 0),
+      position: Vector3.create(columnData.nameStart * width, height, 0),
       parent: parent
     })
     TextShape.createOrReplace(this.nameEntity, {
@@ -83,39 +77,15 @@ class ScoreRow {
       outlineWidth: 0.2
     })
 
-    this.valueEntities = []
-    let currentColumnStart = 0.98
-
-    for (let i = columnData.length - 1; i >= 0; i--) {
-      const valueEntity = engine.addEntity()
-      Transform.create(valueEntity, {
-        position: Vector3.create(currentColumnStart * width, height, 0),
+    //score
+    if (columnData.scoreStart && scoreData.score) {
+      this.scoreEntity = engine.addEntity()
+      Transform.create(this.scoreEntity, {
+        position: Vector3.create(columnData.scoreStart * width, height, 0),
         parent: parent
       })
-
-      let valueText = 'NaN'
-
-      switch (columnData[i].type) {
-        case SCOREBOARD_VALUE_TYPE.LEVEL: {
-          valueText = 'Level ' + scoreData.level.toString()
-          break
-        }
-        case SCOREBOARD_VALUE_TYPE.SCORE: {
-          valueText = scoreData.score.toString()
-          break
-        }
-        case SCOREBOARD_VALUE_TYPE.TIME: {
-          valueText = timeStringFromMs(scoreData.time)
-          break
-        }
-        case SCOREBOARD_VALUE_TYPE.MOVES: {
-          valueText = scoreData.moves.toString()
-          break
-        }
-      }
-
-      TextShape.createOrReplace(valueEntity, {
-        text: valueText,
+      TextShape.createOrReplace(this.scoreEntity, {
+        text: scoreData.score.toString(),
         fontSize: fontSize,
         textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
         textColor: Color4.fromHexString('#ff2d55ff'),
@@ -123,23 +93,82 @@ class ScoreRow {
         outlineWidth: 0.2,
         font: Font.F_SANS_SERIF
       })
+    }
 
-      currentColumnStart -= columnData[i].valueFieldWidth
-      this.valueEntities.push(valueEntity)
+    //time
+    if (columnData.timeStart && scoreData.time) {
+      this.timeEntity = engine.addEntity()
+      Transform.create(this.timeEntity, {
+        position: Vector3.create(columnData.timeStart * width, height, 0),
+        parent: parent
+      })
+      TextShape.createOrReplace(this.timeEntity, {
+        text: timeStringFromMs(scoreData.time),
+        fontSize: fontSize,
+        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
+        textColor: Color4.fromHexString('#ff2d55ff'),
+        outlineColor: Color4.fromHexString('#ff2d55ff'),
+        outlineWidth: 0.2,
+        font: Font.F_SANS_SERIF
+      })
+    }
+
+    //moves
+    if (columnData.movesStart && scoreData.moves) {
+      this.movesEntity = engine.addEntity()
+      Transform.create(this.movesEntity, {
+        position: Vector3.create(columnData.movesStart * width, height, 0),
+        parent: parent
+      })
+      TextShape.createOrReplace(this.movesEntity, {
+        text: scoreData.moves.toString(),
+        fontSize: fontSize,
+        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
+        font: Font.F_SANS_SERIF,
+        textColor: Color4.Black(),
+        outlineColor: Color4.Black(),
+        outlineWidth: 0.2
+      })
+    }
+
+    //level
+    if (columnData.levelStart && scoreData.level) {
+      this.levelEntity = engine.addEntity()
+      Transform.create(this.levelEntity, {
+        position: Vector3.create(columnData.levelStart * width, height, 0),
+        parent: parent
+      })
+      TextShape.createOrReplace(this.levelEntity, {
+        text: 'Level ' + scoreData.level.toString(),
+        fontSize: fontSize,
+        textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
+        font: Font.F_SANS_SERIF,
+        textColor: Color4.Black(),
+        outlineColor: Color4.Black(),
+        outlineWidth: 0.2
+      })
     }
   }
 
   removeRow() {
     const { engine } = getSDK()
-
-    for (let i = 0; i < this.valueEntities.length; i++) {
-      engine.removeEntity(this.valueEntities[i])
+    if (this.levelEntity) {
+      engine.removeEntity(this.levelEntity)
+    }
+    if (this.scoreEntity) {
+      engine.removeEntity(this.scoreEntity)
     }
     if (this.nameEntity) {
       engine.removeEntity(this.nameEntity)
     }
+    if (this.timeEntity) {
+      engine.removeEntity(this.timeEntity)
+    }
     if (this.placeEntity) {
       engine.removeEntity(this.placeEntity)
+    }
+    if (this.movesEntity) {
+      engine.removeEntity(this.movesEntity)
     }
   }
 }
@@ -147,8 +176,8 @@ class ScoreRow {
 export class ScoreBoard {
   uiRoot: Entity
   frame: Entity
-  buttonLeft?: MenuButton
-  buttonRight?: MenuButton
+  buttonLeft: MenuButton
+  buttonRight: MenuButton
   width: number
   height: number
   rowsVisible: number = 10
@@ -156,19 +185,14 @@ export class ScoreBoard {
   header: HeaderRow
   rowHeight: number
   fontScale: number
-  columnData: Column[]
-  sortDirection: sortOrder = 'desc'
-  sortBy: SCOREBOARD_VALUE_TYPE = SCOREBOARD_VALUE_TYPE.LEVEL
-  showButtons: boolean = false
-  frameGLB: string = uiAssets.scoreboard.scoreboardBackgroundLight
+  columnData: ColumnData
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
     boardWidth: number,
     boardHeight: number,
     fontScale: number,
-    _columnData: Column[],
-    config?: scoreboardConfig
+    _columnData: ColumnData
   ) {
     const { engine } = getSDK()
 
@@ -184,13 +208,6 @@ export class ScoreBoard {
     this.scores = []
     this.uiRoot = engine.addEntity()
 
-    if (config) {
-      this.sortBy = config.sortBy ? config.sortBy : SCOREBOARD_VALUE_TYPE.LEVEL
-      this.sortDirection = config.sortDirection ? config.sortDirection : 'desc'
-      this.showButtons = config.showButtons ? config.showButtons : false
-      this.frameGLB = config.frameGLB ? config.frameGLB : uiAssets.scoreboard.scoreboardBackgroundLight
-    }
-
     //https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
 
     this.header = new HeaderRow(_columnData, this.width, -this.rowHeight / 2, this.uiRoot, fontScale)
@@ -205,38 +222,39 @@ export class ScoreBoard {
       scale: Vector3.create(this.width, this.height, 1),
       parent: this.uiRoot
     })
-    GltfContainer.create(this.frame, { src: this.frameGLB })
-    if (this.showButtons) {
-      this.buttonLeft = new MenuButton(
-        {
-          position: Vector3.create(-buttonSize / 4, -this.height * 0.5, 0),
-          rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
-          scale: Vector3.create(buttonSize, buttonSize, buttonSize),
-          parent: this.uiRoot
-        },
-        uiAssets.shapes.SQUARE_RED,
-        uiAssets.icons.leftArrow,
-        'PREVIOUS PAGE',
-        () => {
-          console.log('PREV PAGE PRESSED')
-        }
-      )
+    GltfContainer.create(this.frame, { src: uiAssets.scoreboard.scoreboardBackgroundLight })
 
-      this.buttonRight = new MenuButton(
-        {
-          position: Vector3.create(this.width + buttonSize / 4 - 0.05, -this.height * 0.5, 0),
-          rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
-          scale: Vector3.create(buttonSize, buttonSize, buttonSize),
-          parent: this.uiRoot
-        },
-        uiAssets.shapes.SQUARE_RED,
-        uiAssets.icons.rightArrow,
-        'NEXT PAGE',
-        () => {
-          console.log('NEXT PAGE PRESSED')
-        }
-      )
-    }
+    this.buttonLeft = new MenuButton(
+      {
+        position: Vector3.create(-buttonSize / 4, -this.height * 0.5, 0),
+        rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
+        scale: Vector3.create(buttonSize, buttonSize, buttonSize),
+        parent: this.uiRoot
+      },
+      uiAssets.shapes.SQUARE_RED,
+      uiAssets.icons.leftArrow,
+      'PREVIOUS PAGE',
+      () => {
+        console.log('PREV PAGE PRESSED')
+        //this.loadScores(scoreData, POINTS_TIME )
+      }
+    )
+
+    this.buttonRight = new MenuButton(
+      {
+        position: Vector3.create(this.width + buttonSize / 4 - 0.05, -this.height * 0.5, 0),
+        rotation: Quaternion.fromEulerDegrees(-90, 0, 0),
+        scale: Vector3.create(buttonSize, buttonSize, buttonSize),
+        parent: this.uiRoot
+      },
+      uiAssets.shapes.SQUARE_RED,
+      uiAssets.icons.rightArrow,
+      'NEXT PAGE',
+      () => {
+        console.log('NEXT PAGE PRESSED')
+        //  this.loadScores(scoreData, TIME_LEVEL )
+      }
+    )
 
     //this.loadScores(scoreData, TIME_LEVEL_MOVES)
     void this.getScores()
@@ -245,58 +263,10 @@ export class ScoreBoard {
   async getScores() {
     const { config } = getSDK()
     const GAME_ID = config.gameId ?? '5728b531-4760-4647-a843-d164283dae6d'
-
-    let urlEnding = 'org'
-    if (config.environment === 'dev') {
-      urlEnding = 'zone'
-    }
-    if (config.environment === 'prd') {
-      urlEnding = 'org'
-    }
-    // empty string will sort by level (default server setting)
-    let sortString = ''
-
-    switch (this.sortBy) {
-      case SCOREBOARD_VALUE_TYPE.LEVEL: {
-        sortString = ''
-        break
-      }
-      case SCOREBOARD_VALUE_TYPE.TIME: {
-        sortString = 'time'
-        break
-      }
-      case SCOREBOARD_VALUE_TYPE.SCORE: {
-        sortString = 'score'
-        break
-      }
-      case SCOREBOARD_VALUE_TYPE.MOVES: {
-        sortString = 'moves'
-        break
-      }
-    }
-
-    let sorDirString = 'DESC'
-
-    switch (this.sortDirection) {
-      case 'asc': {
-        sorDirString = 'ASC'
-        break
-      }
-      case 'desc': {
-        sorDirString = 'DESC'
-        break
-      }
-    }
-
+    // https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
+    //let scores: any[] = []
     const url =
-      'https://exploration-games.decentraland.' +
-      urlEnding +
-      '/api/games/' +
-      GAME_ID +
-      '/leaderboard?sort=' +
-      sortString +
-      '&direction=' +
-      sorDirString
+      'https://exploration-games.decentraland.zone/api/games/' + GAME_ID + '/leaderboard?sort=time&direction=ASC'
 
     try {
       const response = await fetch(url)
@@ -332,7 +302,7 @@ export class ScoreBoard {
       console.log(json)
       return this.scores
     } catch (e) {
-      console.log('error getting score data ', e)
+      console.log('error getting trending scene data ', e)
     }
   }
 }

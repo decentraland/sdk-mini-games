@@ -1,5 +1,6 @@
 import { Entity, TransformTypeWithOptionals } from '@dcl/sdk/ecs'
 import { Vector3 } from '@dcl/sdk/math'
+import { syncEntity } from '@dcl/sdk/network'
 import { getSDK } from '../sdk'
 
 type justification = 'left' | 'right' | 'center'
@@ -60,7 +61,7 @@ export class Counter3D {
   addDigits() {
     const {
       engine,
-      components: { Transform, VisibilityComponent }
+      components: { Transform, GltfContainer, VisibilityComponent }
     } = getSDK()
     for (let i = 0; i < this.maxDigits; i++) {
       const numberEntity = engine.addEntity()
@@ -70,9 +71,8 @@ export class Counter3D {
       })
       VisibilityComponent.createOrReplace(numberEntity)
       this.digits.push(numberEntity)
-      // TODO: If we want to sync this we should add the VisibilityComponent.
-      // Needs some test.
-      // syncEntity(numberEntity, [Transform.componentId, GltfContainer.componentId], this.id * 20000 + i)
+
+      syncEntity(numberEntity, [Transform.componentId, GltfContainer.componentId], this.id * 20000 + i)
     }
   }
 
