@@ -67,14 +67,14 @@ export class MenuButton {
       texture: Material.Texture.Common({ src: uiAtlas }),
       albedoColor: Color4.White(),
       emissiveColor: Color4.White(),
-      emissiveIntensity: 2,
+      emissiveIntensity: 0.8,
       alphaTexture: Material.Texture.Common({ src: uiAtlas }),
       transparencyMode: MaterialTransparencyMode.MTM_ALPHA_TEST
     }
 
     this.iconDisabledMat = {
       texture: Material.Texture.Common({ src: uiAtlas }),
-      albedoColor: Color4.Gray(),
+      albedoColor: Color4.fromHexString('#555555ff'),
       //emissiveColor: Color4.Gray(),
       alphaTexture: Material.Texture.Common({ src: uiAtlas }),
       transparencyMode: MaterialTransparencyMode.MTM_ALPHA_TEST
@@ -220,6 +220,7 @@ export class MenuButton {
       texture: Material.Texture.Common({ src: uiAtlas }),
       albedoColor: Color4.White(),
       emissiveColor: Color4.White(),
+      emissiveIntensity: 0.8,
       alphaTexture: Material.Texture.Common({ src: uiAtlas }),
       transparencyMode: MaterialTransparencyMode.MTM_ALPHA_TEST
     })
@@ -236,7 +237,7 @@ export class MenuButton {
     Material.setPbrMaterial(this.glowPlane, {
       albedoColor: Color4.White(),
       emissiveColor: Color4.White(),
-      emissiveIntensity: 4
+      emissiveIntensity: 2
     })
     VisibilityComponent.create(this.glowPlane, { visible: false })
   }
@@ -250,6 +251,7 @@ export class MenuButton {
       texture: Material.Texture.Common({ src: uiAtlas }),
       albedoColor: Color4.White(),
       emissiveColor: Color4.White(),
+      emissiveIntensity: 0.8,
       alphaTexture: Material.Texture.Common({ src: uiAtlas }),
       transparencyMode: MaterialTransparencyMode.MTM_ALPHA_TEST
     })
@@ -287,11 +289,11 @@ export class MenuButton {
 
   disable() {
     const {
-      components: { GltfContainer, Material }
+      components: { Material }
     } = getSDK()
 
     this.enabled = false
-    GltfContainer.createOrReplace(this.button, { src: this.buttonShapeDisabled.shape })
+    //GltfContainer.createOrReplace(this.button, { src: this.buttonShapeDisabled.shape })
     Material.setPbrMaterial(this.icon, this.iconDisabledMat)
   }
 }
