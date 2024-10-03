@@ -2,49 +2,50 @@ import { Entity, Font, TextAlignMode } from '@dcl/sdk/ecs'
 import { Color4, Vector3 } from '@dcl/sdk/math'
 import { getSDK } from '../../sdk'
 
-export const NAME_START = 0.065
-export const PLACEMENT_START = 0.05
-
-export enum SCOREBOARD_VALUE_TYPE {
-  LEVEL,
-  TIME,
-  SCORE,
-  MOVES
+export type ColumnData = {
+  placementStart: number
+  nameStart: number
+  nameHeader: string
+  scoreHeader?: string
+  timeHeader?: string
+  movesHeader?: string
+  levelHeader?: string
+  scoreStart?: number
+  timeStart?: number
+  movesStart?: number
+  levelStart?: number
 }
 
-export type Column = {
-  headerText: string
-  type: SCOREBOARD_VALUE_TYPE
-  valueFieldWidth: number
+export const TIME_LEVEL_MOVES: ColumnData = {
+  placementStart: 0.075,
+  nameStart: 0.09,
+  timeStart: 0.6,
+  levelStart: 0.78,
+  movesStart: 0.96,
+  nameHeader: 'PLAYER',
+  timeHeader: 'TIME',
+  movesHeader: 'MOVES',
+  levelHeader: 'LEVEL'
+}
+export const TIME_LEVEL: ColumnData = {
+  placementStart: 0.06,
+  nameStart: 0.08,
+  timeStart: 0.7,
+  levelStart: 0.96,
+  nameHeader: 'PLAYER',
+  timeHeader: 'TIME',
+  levelHeader: 'LEVEL'
 }
 
-export const SCORE: Column = {
-  headerText: 'POINTS',
-  type: SCOREBOARD_VALUE_TYPE.SCORE,
-  valueFieldWidth: 0.2
+export const POINTS_TIME: ColumnData = {
+  placementStart: 0.06,
+  nameStart: 0.08,
+  scoreStart: 0.65,
+  timeStart: 0.96,
+  nameHeader: 'PLAYER',
+  scoreHeader: 'POINTS',
+  timeHeader: 'TIME'
 }
-
-export const TIME: Column = {
-  headerText: 'TIME',
-  type: SCOREBOARD_VALUE_TYPE.TIME,
-  valueFieldWidth: 0.2
-}
-
-export const LEVEL: Column = {
-  headerText: 'LEVEL',
-  type: SCOREBOARD_VALUE_TYPE.LEVEL,
-  valueFieldWidth: 0.18
-}
-
-export const MOVES: Column = {
-  headerText: 'MOVES',
-  type: SCOREBOARD_VALUE_TYPE.MOVES,
-  valueFieldWidth: 0.18
-}
-
-export const TIME_LEVEL_MOVES: Column[] = [TIME, LEVEL, MOVES]
-export const TIME_LEVEL: Column[] = [TIME, LEVEL]
-export const POINTS_TIME: Column[] = [SCORE, TIME]
 
 export function addHeaderText(entity: Entity, text: string, fontSize: number, align: TextAlignMode) {
   const {
@@ -64,10 +65,12 @@ export function addHeaderText(entity: Entity, text: string, fontSize: number, al
 
 export class HeaderRow {
   nameHeader: Entity
-  currentColumnStart: number = 0.98
-  headers: Entity[] = []
+  scoreHeader?: Entity
+  timeHeader?: Entity
+  movesHeader?: Entity
+  levelHeader?: Entity
 
-  constructor(columnData: Column[], width: number, height: number, parent: Entity, fontSize: number) {
+  constructor(columnData: ColumnData, width: number, height: number, parent: Entity, fontSize: number) {
     const {
       engine,
       components: { Transform }
@@ -75,28 +78,68 @@ export class HeaderRow {
 
     this.nameHeader = engine.addEntity()
     Transform.create(this.nameHeader, {
-      position: Vector3.create(NAME_START * width, height, 0),
+      position: Vector3.create(columnData.nameStart * width, height, 0),
       parent: parent
     })
-    addHeaderText(this.nameHeader, 'PLAYER', fontSize, TextAlignMode.TAM_MIDDLE_LEFT)
-    // add all columns listed in columndata
-    for (let i = columnData.length - 1; i >= 0; i--) {
-      const currentHeader = engine.addEntity()
-      Transform.create(currentHeader, {
-        position: Vector3.create(this.currentColumnStart * width, height, 0),
+    addHeaderText(this.nameHeader, columnData.nameHeader, fontSize, TextAlignMode.TAM_MIDDLE_LEFT)
+
+    //score
+    if (columnData.scoreHeader && columnData.scoreStart) {
+      this.scoreHeader = engine.addEntity()
+      Transform.create(this.scoreHeader, {
+        position: Vector3.create(columnData.scoreStart * width, height, 0),
         parent: parent
       })
-      addHeaderText(currentHeader, columnData[i].headerText ?? '-', fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
+      addHeaderText(this.scoreHeader, columnData.scoreHeader, fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
+    }
 
-      this.currentColumnStart -= columnData[i].valueFieldWidth
+    //time
+    if (columnData.timeStart && columnData.timeHeader) {
+      this.timeHeader = engine.addEntity()
+      Transform.create(this.timeHeader, {
+        position: Vector3.create(columnData.timeStart * width, height, 0),
+        parent: parent
+      })
+      addHeaderText(this.timeHeader, columnData.timeHeader, fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
+    }
+
+    //moves
+    if (columnData.movesStart && columnData.movesHeader) {
+      this.movesHeader = engine.addEntity()
+      Transform.create(this.movesHeader, {
+        position: Vector3.create(columnData.movesStart * width, height, 0),
+        parent: parent
+      })
+      addHeaderText(this.movesHeader, columnData.movesHeader, fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
+    }
+
+    //level
+    if (columnData.levelStart && columnData.levelHeader) {
+      this.levelHeader = engine.addEntity()
+      Transform.create(this.levelHeader, {
+        position: Vector3.create(columnData.levelStart * width, height, 0),
+        parent: parent
+      })
+      addHeaderText(this.levelHeader, columnData.levelHeader, fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
     }
   }
 
   removeHeaders() {
     const { engine } = getSDK()
-
-    for (let i = 0; i < this.headers.length; i++) {
-      engine.removeEntity(this.headers[i])
+    if (this.levelHeader) {
+      engine.removeEntity(this.levelHeader)
+    }
+    if (this.scoreHeader) {
+      engine.removeEntity(this.scoreHeader)
+    }
+    if (this.nameHeader) {
+      engine.removeEntity(this.nameHeader)
+    }
+    if (this.timeHeader) {
+      engine.removeEntity(this.timeHeader)
+    }
+    if (this.movesHeader) {
+      engine.removeEntity(this.movesHeader)
     }
   }
 }
