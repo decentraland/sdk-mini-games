@@ -11,9 +11,13 @@ type sortOrder = 'asc' | 'desc'
 
 type scoreboardConfig = {
   showButtons: boolean
-  frameGLB?: string
+  backgroundImage?: string
+  showBackground?: boolean
+  backgroundEmissiveIntensity?: number
   sortBy?: SCOREBOARD_VALUE_TYPE
   sortDirection?: sortOrder
+  textColorMain?: Color4
+  textColorSecondary?: Color4
 }
 
 class ScoreRow {
@@ -35,7 +39,9 @@ class ScoreRow {
     width: number,
     height: number,
     parent: Entity,
-    fontSize: number
+    fontSize: number,
+    textColorMain: Color4,
+    textColorSecondary: Color4
   ) {
     this.place = place
     this.name = scoreData.user_name
@@ -58,8 +64,8 @@ class ScoreRow {
       text: place.toString(),
       fontSize: fontSize,
       textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
-      textColor: Color4.fromHexString('#ff2d55ff'),
-      outlineColor: Color4.fromHexString('#ff2d55ff'),
+      textColor: textColorSecondary,
+      outlineColor: textColorSecondary,
       outlineWidth: 0.3,
       font: Font.F_SANS_SERIF
     })
@@ -78,8 +84,8 @@ class ScoreRow {
       fontSize: fontSize,
       textAlign: TextAlignMode.TAM_MIDDLE_LEFT,
       font: Font.F_SANS_SERIF,
-      textColor: Color4.Black(),
-      outlineColor: Color4.Black(),
+      textColor: textColorMain,
+      outlineColor: textColorMain,
       outlineWidth: 0.2
     })
 
@@ -118,8 +124,8 @@ class ScoreRow {
         text: valueText,
         fontSize: fontSize,
         textAlign: TextAlignMode.TAM_MIDDLE_RIGHT,
-        textColor: Color4.fromHexString('#ff2d55ff'),
-        outlineColor: Color4.fromHexString('#ff2d55ff'),
+        textColor: textColorSecondary,
+        outlineColor: textColorSecondary,
         outlineWidth: 0.2,
         font: Font.F_SANS_SERIF
       })
@@ -160,7 +166,11 @@ export class ScoreBoard {
   sortDirection: sortOrder = 'desc'
   sortBy: SCOREBOARD_VALUE_TYPE = SCOREBOARD_VALUE_TYPE.LEVEL
   showButtons: boolean = false
-  frameGLB: string = uiAssets.scoreboard.scoreboardBackgroundLight
+  showBackground: boolean = true
+  emissiveIntensity: number = 0.5
+  frameBG: string = uiAssets.scoreboard.scoreBoardBackgroudDefault
+  textColorMain: Color4 = Color4.Black()
+  textColorSecondary: Color4 = Color4.fromHexString('#ff2d55ff')
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
@@ -188,24 +198,76 @@ export class ScoreBoard {
       this.sortBy = config.sortBy ? config.sortBy : SCOREBOARD_VALUE_TYPE.LEVEL
       this.sortDirection = config.sortDirection ? config.sortDirection : 'desc'
       this.showButtons = config.showButtons ? config.showButtons : false
-      this.frameGLB = config.frameGLB ? config.frameGLB : uiAssets.scoreboard.scoreboardBackgroundLight
+      this.frameBG = config.backgroundImage ? config.backgroundImage : uiAssets.scoreboard.scoreBoardBackgroudDefault
+
+      if (config.showBackground !== undefined) {
+        this.showBackground = config.showBackground ? config.showBackground : false
+      } else {
+        this.showBackground = true
+      }
+      if (config.backgroundEmissiveIntensity !== undefined) {
+        this.emissiveIntensity = config.backgroundEmissiveIntensity
+      } else {
+        this.emissiveIntensity = 0.5
+      }
+      this.textColorMain = config.textColorMain ? config.textColorMain : Color4.Black()
+      this.textColorSecondary = config.textColorSecondary
+        ? config.textColorSecondary
+        : Color4.fromHexString('#ff2d55ff')
     }
 
     //https://exploration-games.decentraland.zone/api/games/4ee1d308-5e1e-4b2b-9e91-9091878a7e3d/leaderboard?sort=time
 
-    this.header = new HeaderRow(_columnData, this.width, -this.rowHeight / 2, this.uiRoot, fontScale)
+    this.header = new HeaderRow(
+      _columnData,
+      this.width,
+      -this.rowHeight / 2,
+      this.uiRoot,
+      fontScale,
+      this.textColorSecondary
+    )
     const {
-      components: { Transform, GltfContainer }
+      components: { Transform, Material, MeshRenderer }
     } = getSDK()
 
     Transform.create(this.uiRoot, rootTransform)
     this.frame = engine.addEntity()
-    Transform.create(this.frame, {
-      position: Vector3.create(0, 0, 0.02),
-      scale: Vector3.create(this.width, this.height, 1),
-      parent: this.uiRoot
-    })
-    GltfContainer.create(this.frame, { src: this.frameGLB })
+
+    if (this.showBackground) {
+      if (config?.backgroundImage) {
+        Transform.create(this.frame, {
+          position: Vector3.create(this.width / 2, -this.height / 2, 0.02),
+          scale: Vector3.create(this.width, this.height, 1),
+          parent: this.uiRoot
+        })
+        MeshRenderer.setPlane(this.frame)
+        Material.setPbrMaterial(this.frame, {
+          texture: Material.Texture.Common({ src: this.frameBG }),
+          emissiveTexture: Material.Texture.Common({ src: this.frameBG }),
+          emissiveIntensity: this.emissiveIntensity,
+          roughness: 1,
+          metallic: 0,
+          specularIntensity: 0
+        })
+      } else {
+        Transform.create(this.frame, {
+          position: Vector3.create(this.width / 2, -this.height / 2, 0.02),
+          scale: Vector3.create(this.width, this.height, 1),
+          parent: this.uiRoot
+        })
+        MeshRenderer.setPlane(this.frame)
+        Material.setPbrMaterial(this.frame, {
+          texture: Material.Texture.Common({ src: this.frameBG }),
+          emissiveTexture: Material.Texture.Common({ src: this.frameBG }),
+          emissiveIntensity: this.emissiveIntensity,
+          emissiveColor: Color4.White(),
+          roughness: 1,
+          metallic: 0,
+          specularIntensity: 0
+        })
+      }
+    }
+
     if (this.showButtons) {
       this.buttonLeft = new MenuButton(
         {
@@ -322,12 +384,21 @@ export class ScoreBoard {
             this.width,
             -this.rowHeight / 2 + this.rowHeight * -rowIndex,
             this.uiRoot,
-            this.fontScale
+            this.fontScale,
+            this.textColorMain,
+            this.textColorSecondary
           )
         )
       }
 
-      this.header = new HeaderRow(this.columnData, this.width, -this.rowHeight / 2, this.uiRoot, this.fontScale)
+      this.header = new HeaderRow(
+        this.columnData,
+        this.width,
+        -this.rowHeight / 2,
+        this.uiRoot,
+        this.fontScale,
+        this.textColorSecondary
+      )
 
       console.log(json)
       return this.scores

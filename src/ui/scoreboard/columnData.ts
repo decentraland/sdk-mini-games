@@ -46,7 +46,7 @@ export const TIME_LEVEL_MOVES: Column[] = [TIME, LEVEL, MOVES]
 export const TIME_LEVEL: Column[] = [TIME, LEVEL]
 export const POINTS_TIME: Column[] = [SCORE, TIME]
 
-export function addHeaderText(entity: Entity, text: string, fontSize: number, align: TextAlignMode) {
+export function addHeaderText(entity: Entity, text: string, fontSize: number, align: TextAlignMode, color: Color4) {
   const {
     components: { TextShape }
   } = getSDK()
@@ -55,8 +55,8 @@ export function addHeaderText(entity: Entity, text: string, fontSize: number, al
     text: text,
     fontSize: fontSize,
     textAlign: align,
-    textColor: Color4.fromHexString('#ff2d55ff'),
-    outlineColor: Color4.fromHexString('#ff2d55ff'),
+    textColor: color,
+    outlineColor: color,
     outlineWidth: 0.3,
     font: Font.F_SANS_SERIF
   })
@@ -67,7 +67,7 @@ export class HeaderRow {
   currentColumnStart: number = 0.98
   headers: Entity[] = []
 
-  constructor(columnData: Column[], width: number, height: number, parent: Entity, fontSize: number) {
+  constructor(columnData: Column[], width: number, height: number, parent: Entity, fontSize: number, color: Color4) {
     const {
       engine,
       components: { Transform }
@@ -78,7 +78,7 @@ export class HeaderRow {
       position: Vector3.create(NAME_START * width, height, 0),
       parent: parent
     })
-    addHeaderText(this.nameHeader, 'PLAYER', fontSize, TextAlignMode.TAM_MIDDLE_LEFT)
+    addHeaderText(this.nameHeader, 'PLAYER', fontSize, TextAlignMode.TAM_MIDDLE_LEFT, color)
     // add all columns listed in columndata
     for (let i = columnData.length - 1; i >= 0; i--) {
       const currentHeader = engine.addEntity()
@@ -86,7 +86,7 @@ export class HeaderRow {
         position: Vector3.create(this.currentColumnStart * width, height, 0),
         parent: parent
       })
-      addHeaderText(currentHeader, columnData[i].headerText ?? '-', fontSize, TextAlignMode.TAM_MIDDLE_RIGHT)
+      addHeaderText(currentHeader, columnData[i].headerText ?? '-', fontSize, TextAlignMode.TAM_MIDDLE_RIGHT, color)
 
       this.currentColumnStart -= columnData[i].valueFieldWidth
     }

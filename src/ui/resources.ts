@@ -32,8 +32,11 @@ function getUVs(row: number, startBlock: number, width: number): number[] {
   ]
 }
 // SCOREBOARD
-const scoreboardBackgroundLight = 'mini-game-assets/models/ui/scoreboard_bg.glb'
-const scoreboardBackgroundDark = 'mini-game-assets/models/ui/scoreboard_bg_dark.glb'
+// const scoreboardBackgroundLight = 'mini-game-assets/models/ui/scoreboard_bg.glb'
+// const scoreboardBackgroundDark = 'mini-game-assets/models/ui/scoreboard_bg_dark.glb'
+
+//const scoreBoardBackgroudDefault = 'mini-game-assets/images/scoreboard_bg.png'
+const scoreBoardBackgroudDefault = 'mini-game-assets/images/scoreboard_bg.png'
 
 //BUTTONS
 const squareBase = 'mini-game-assets/models/ui/button_base_square.glb'
@@ -204,7 +207,6 @@ export const uiAssets = {
   },
   numbers,
   scoreboard: {
-    scoreboardBackgroundLight,
-    scoreboardBackgroundDark
+    scoreBoardBackgroudDefault
   }
 }
