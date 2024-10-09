@@ -6,6 +6,7 @@ import { uiAssets } from '../resources'
 import { timeStringFromMs } from '../utilities'
 import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
 import { getSDK } from '../../sdk'
+import { queue } from '../..'
 
 type sortOrder = 'asc' | 'desc'
 
@@ -171,6 +172,8 @@ export class ScoreBoard {
   frameBG: string = uiAssets.scoreboard.scoreBoardBackgroudDefault
   textColorMain: Color4 = Color4.Black()
   textColorSecondary: Color4 = Color4.fromHexString('#ff2d55ff')
+  lastQueue = queue.getQueue()
+  scoreboardUpdateTimer = 0
 
   constructor(
     rootTransform: TransformTypeWithOptionals,
@@ -302,6 +305,21 @@ export class ScoreBoard {
 
     //this.loadScores(scoreData, TIME_LEVEL_MOVES)
     void this.getScores()
+
+    //auto update scoreboard on queue length change
+
+    engine.addSystem((dt: number) => {
+      this.scoreboardUpdateTimer += dt
+      if (this.scoreboardUpdateTimer < 0.25) return
+      this.scoreboardUpdateTimer = 0
+
+      const newQueue = queue.getQueue()
+      if (newQueue.length !== this.lastQueue.length) {
+        console.log('updating scoreboard')
+        this.lastQueue = newQueue
+        void this.getScores()
+      }
+    })
   }
 
   async getScores() {

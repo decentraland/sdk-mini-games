@@ -38,17 +38,7 @@ export class MenuButton {
     const {
       engine,
       inputSystem,
-      components: {
-        Material,
-        MeshRenderer,
-        Transform,
-        GltfContainer,
-        PointerEvents,
-        VisibilityComponent,
-        Tween,
-        TweenSequence
-      },
-      tweenSystem
+      components: { Material, MeshRenderer, Transform, GltfContainer, PointerEvents, VisibilityComponent, Tween }
     } = getSDK()
 
     this.enabled = true
