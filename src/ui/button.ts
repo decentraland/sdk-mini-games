@@ -17,6 +17,7 @@ export class MenuButton {
   icon: Entity
   glowPlane: Entity
   enabled: boolean
+  isPressed = false
   buttonShapeEnabled: ButtonShapeData
   buttonShapeDisabled: ButtonShapeData
   iconGlowMat: PBMaterial_PbrMaterial
@@ -98,7 +99,6 @@ export class MenuButton {
 
     engine.addSystem((dt: number) => {
       if (this.pendingTweens.length && this.tweenFinished) {
-        // console.log('setting new tween', this.pendingTweens.length)
         //start first tween, put timer to duration and start second tween
         const newTween = this.pendingTweens.shift()
         Tween.createOrReplace(this.button, newTween)
@@ -106,45 +106,29 @@ export class MenuButton {
         this.tweenFinished = false
       }
       if (this.tweenTimer) {
-        // console.log('timer running')
         this.tweenTimer -= dt * 1000
         //10 extra msec to ensure that tween has finished
         if (this.tweenTimer < 10) {
-          // console.log('tween finished')
           this.tweenTimer = 0
           this.tweenFinished = true
           Tween.deleteFrom(this.button)
 
           if (!this.pendingTweens.length) {
             // console.log('no more tweens, setting materials')
-            this.enable()
-            // Material.setPbrMaterial(this.icon, this.iconGlowMat)
+            this.isPressed = false
+            // this.enable()
             VisibilityComponent.getMutable(this.glowPlane).visible = false
           }
         }
       }
 
-      // if (tweenSystem.tweenCompleted(this.button)) {
-      //   if (!TweenSequence.get(this.button).sequence.length) {
-      //     this.enable()
-      //     // Tween.deleteFrom(this.button)
-      //     TweenSequence.deleteFrom(this.button)
-      //     VisibilityComponent.getMutable(this.glowPlane).visible = false
-      //     //reset the emissive of the icon
-      //     // if (this.enabled) {
-      //     Material.setPbrMaterial(this.icon, this.iconGlowMat)
-      //     // } else {
-      //     // Material.setPbrMaterial(this.icon, this.iconDisabledMat)
-      //     // }
-      //   }
-      // }
-      // this.disable()
-
       if (inputSystem.isTriggered(InputAction.IA_POINTER, PointerEventType.PET_DOWN, this.button)) {
-        if (this.enabled) {
+        console.log('isPressed: ', this.isPressed)
+        if (!this.isPressed && this.enabled) {
           callback()
           this.playSound('mini-game-assets/sounds/button_click.mp3')
-          this.disable()
+          // this.disable()
+          this.isPressed = true
           //flash the emissive of the icon
           Material.setPbrMaterial(this.icon, {
             texture: Material.Texture.Common({ src: uiAtlas }),
@@ -171,25 +155,6 @@ export class MenuButton {
             easingFunction: EasingFunction.EF_EASEOUTSINE,
             mode: Tween.Mode.Move({ start: Vector3.create(0, -0.03, 0), end: Vector3.Zero() })
           })
-
-          // Tween.createOrReplace(this.button, {
-          //   duration: this.releaseTime / 2,
-          //   currentTime: 0,
-          //   playing: true,
-          //   easingFunction: EasingFunction.EF_EASEOUTSINE,
-          //   mode: Tween.Mode.Move({ start: Vector3.Zero(), end: Vector3.create(0, -0.03, 0) })
-          // })
-          // TweenSequence.createOrReplace(this.button, {
-          //   sequence: [
-          //     {
-          //       duration: this.releaseTime / 2,
-          //       currentTime: 0,
-          //       playing: true,
-          //       easingFunction: EasingFunction.EF_EASEOUTSINE,
-          //       mode: Tween.Mode.Move({ start: Vector3.create(0, -0.03, 0), end: Vector3.Zero() })
-          //     }
-          //   ]
-          // })
         } else {
           this.playSound('mini-game-assets/sounds/wrong.mp3')
         }
@@ -279,11 +244,11 @@ export class MenuButton {
 
   disable() {
     const {
-      components: { Material }
+      components: { Material, GltfContainer }
     } = getSDK()
 
     this.enabled = false
-    //GltfContainer.createOrReplace(this.button, { src: this.buttonShapeDisabled.shape })
+    GltfContainer.createOrReplace(this.button, { src: this.buttonShapeDisabled.shape })
     Material.setPbrMaterial(this.icon, this.iconDisabledMat)
   }
 }
