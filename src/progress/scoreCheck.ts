@@ -16,13 +16,9 @@ export function isScoreMetCondition(scoreData: IScore, challengeData: IChallenge
       case 'level':
       case 'moves':
       case 'time': {
-        if (
-          key in scoreData &&
-          scoreData[key] !== undefined &&
-          scoreData[key] !== null &&
-          typeof scoreData[key] === 'number'
-        ) {
-          result = checkCondition(challengeData[key].condition, scoreData[key], challengeData[key].target)
+        const value = scoreData[key]
+        if (key in scoreData && value !== undefined && value !== null && typeof value === 'number') {
+          result = checkCondition(challengeData[key].condition, value, challengeData[key].target)
           console.log('check condition result:', result)
         } else {
           console.log('can not find key:', key)
@@ -32,8 +28,9 @@ export function isScoreMetCondition(scoreData: IScore, challengeData: IChallenge
       case 'data': {
         if (key in scoreData && scoreData[key] !== undefined && scoreData[key] !== null) {
           const customKey = challengeData[key].customDataType as CustomDataKeys
-          if (customKey && scoreData.data && customKey in scoreData.data && scoreData[key][customKey]) {
-            result = checkCondition(challengeData[key].condition, scoreData[key][customKey], challengeData[key].target)
+          const value = scoreData[key]
+          if (customKey && scoreData.data && customKey in scoreData.data && value && value[customKey]) {
+            result = checkCondition(challengeData[key].condition, value[customKey] as any, challengeData[key].target)
             console.log('check condition result:', result)
           } else {
             console.log('can not find key:', customKey)

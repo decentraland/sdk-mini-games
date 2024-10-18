@@ -1,7 +1,7 @@
 import { createInputSystem, IEngine, IInputSystem, Schemas, createTweenSystem, TweenSystem } from '@dcl/sdk/ecs'
 import * as components from '@dcl/ecs/dist/components'
 import type players from '@dcl/sdk/players'
-import type { syncEntity as SyncEntityType } from '@dcl/sdk/network'
+import type { syncEntity as SyncEntityType, isStateSyncronized as IsStateSyncronizedType } from '@dcl/sdk/network'
 import { IOptions } from '.'
 import { Player as PlayerComponent, setPlayerComponent } from './components/Player'
 
@@ -26,8 +26,10 @@ type ICache = {
     TweenSequence: ReturnType<typeof components.TweenSequence>
     TweenState: ReturnType<typeof components.TweenState>
     PlayerIdentityData: ReturnType<typeof components.PlayerIdentityData>
+    RealmInfo: ReturnType<typeof components.RealmInfo>
     Player: typeof PlayerComponent
   }
+  isStateSyncronized: typeof IsStateSyncronizedType
 }
 
 const cache: ICache = {} as ICache
@@ -44,6 +46,7 @@ export function setSDK(value: Omit<ICache, 'inputSystem' | 'components' | 'tween
   cache.tweenSystem = createTweenSystem(value.engine)
 
   cache.components = {
+    RealmInfo: components.RealmInfo(cache.engine),
     Transform: components.Transform(cache.engine),
     GltfContainer: components.GltfContainer(cache.engine),
     AudioSource: components.AudioSource(cache.engine),

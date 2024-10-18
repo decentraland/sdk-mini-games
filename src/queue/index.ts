@@ -1,7 +1,6 @@
 import { Entity, InputAction, PointerEventType } from '@dcl/sdk/ecs'
 import { initQueueDisplay } from './display'
 import { getSDK } from '../sdk'
-import { ForceSelfPlayerSyncSystem } from './forcePlayerSync'
 
 export type PlayerType = {
   address: string
@@ -32,7 +31,6 @@ export function startPlayersQueue() {
 
   engine.addSystem(internalPlayerSystem())
   engine.addSystem(inputsCheckTimer())
-  engine.addSystem(ForceSelfPlayerSyncSystem)
 }
 /**
  * Add current player to the queue
@@ -41,11 +39,12 @@ export function addPlayer() {
   const {
     engine,
     syncEntity,
-    components: { Player }
+    components: { Player },
+    isStateSyncronized
   } = getSDK()
 
   const userId = getUserId()
-  if (!userId || isPlayerInQueue(userId)) {
+  if (!userId || isPlayerInQueue(userId) || !isStateSyncronized()) {
     return
   }
 
@@ -189,17 +188,6 @@ function inputsCheckTimer() {
       inactiveSince = Date.now()
     }
   }
-}
-
-function isPlayerConnected(userId: string) {
-  const {
-    engine,
-    components: { PlayerIdentityData }
-  } = getSDK()
-  for (const [_, player] of engine.getEntitiesWith(PlayerIdentityData)) {
-    if (player.address === userId) return true
-  }
-  return false
 }
 
 /**
