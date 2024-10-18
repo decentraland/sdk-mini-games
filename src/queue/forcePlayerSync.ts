@@ -1,6 +1,4 @@
-import { Player } from "@dcl-sdk/mini-games/src/components/Player"
-import { getSDK } from "@dcl-sdk/mini-games/src/sdk"
-import { engine } from "@dcl/sdk/ecs"
+import { getSDK } from "../sdk"
 
 /**
  * Cache the client userId
@@ -13,6 +11,11 @@ function getUserId() {
     return (userId = players.getPlayer()?.userId)
 }
 function forceSelfPlayerSync() {
+    const {
+        engine,
+        syncEntity,
+        components: { Player }
+      } = getSDK()
 
     for (const [entity, player] of engine.getEntitiesWith(Player)) {
         if (player.address === getUserId()) {
