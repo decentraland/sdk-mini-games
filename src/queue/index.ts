@@ -1,6 +1,7 @@
 import { Entity, InputAction, PointerEventType } from '@dcl/sdk/ecs'
 import { initQueueDisplay } from './display'
 import { getSDK } from '../sdk'
+import { ForceSelfPlayerSyncSystem } from './forcePlayerSync'
 
 export type PlayerType = {
   address: string
@@ -31,6 +32,7 @@ export function startPlayersQueue() {
 
   engine.addSystem(internalPlayerSystem())
   engine.addSystem(inputsCheckTimer())
+  engine.addSystem(ForceSelfPlayerSyncSystem)
 }
 /**
  * Add current player to the queue
