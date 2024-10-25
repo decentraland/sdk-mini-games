@@ -6,7 +6,8 @@ import { queue } from '../..'
 export enum SCREENS {
   addToQueue,
   playNext,
-  queueList
+  queueList,
+  syncing
 }
 
 let frameEntity: Entity
@@ -222,10 +223,16 @@ function updateScreenSystem() {
       delayedFunction(() => disable())
     }
   } else {
-    //player not in queue
-    disable()
-    enterScreenShown = false
-    setScreen(SCREENS.addToQueue)
+    if (queue.isAwaiting()) {
+      //player is awaiting to enter
+      enable()
+      setScreen(SCREENS.syncing) 
+    } else {
+      //player not in queue
+      disable()
+      enterScreenShown = false
+      setScreen(SCREENS.addToQueue)
+    }
   }
 }
 

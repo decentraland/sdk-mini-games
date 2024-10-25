@@ -17,6 +17,7 @@ export const listeners: { onActivePlayerChange: (player: PlayerType | null) => v
   onActivePlayerChange: () => {}
 }
 let initializedQueue = false
+let addPlayerRequested = false
 /**
  * We need the engine, syncEntity and playerApi as params to avoid references to different engines
  * when working on development environments.
@@ -26,6 +27,7 @@ export function startPlayersQueue() {
   initializedQueue = true
   const { engine, players } = getSDK()
   players.onLeaveScene((userId: string) => {
+    addPlayerRequested = false
     removePlayer(userId)
   })
 
@@ -36,22 +38,12 @@ export function startPlayersQueue() {
  * Add current player to the queue
  */
 export function addPlayer() {
-  const {
-    engine,
-    syncEntity,
-    components: { Player },
-    isStateSyncronized
-  } = getSDK()
-
   const userId = getUserId()
-  if (!userId || isPlayerInQueue(userId) || !isStateSyncronized()) {
+  if (!userId || isPlayerInQueue(userId) || addPlayerRequested) {
     return
   }
 
-  const timestamp = Date.now()
-  const entity = engine.addEntity()
-  Player.create(entity, { address: userId, joinedAt: timestamp })
-  syncEntity(entity, [Player.componentId])
+  addPlayerRequested = true
 }
 
 /**
@@ -63,6 +55,10 @@ export function isActive(): boolean {
     return player.address === getUserId()
   }
   return false
+}
+
+export function isAwaiting( ) {
+  return addPlayerRequested
 }
 
 /**
@@ -145,6 +141,23 @@ function internalPlayerSystem() {
     }
     timer = 0
 
+    const {
+      engine,
+      config,
+      syncEntity,
+      components: { Player, RealmInfo },
+      isStateSyncronized
+    } = getSDK()
+
+    const realmInfo = RealmInfo.getOrNull(engine.RootEntity)
+    if (addPlayerRequested && realmInfo?.isConnectedSceneRoom && isStateSyncronized()) {
+      const timestamp = Date.now()
+      const entity = engine.addEntity()
+      Player.create(entity, { address: userId, joinedAt: timestamp })
+      syncEntity(entity, [Player.componentId])
+      addPlayerRequested = false
+    }
+
     const [_, activePlayer] = getActivePlayer()
 
     // Emit onActivePlayerChange if the last player has changed
@@ -157,7 +170,6 @@ function internalPlayerSystem() {
     if (!activePlayer) {
       setNextPlayer()
     }
-    const { config } = getSDK()
 
     // TIMER for active player and inactivity detection
     if (
