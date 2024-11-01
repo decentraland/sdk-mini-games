@@ -226,7 +226,7 @@ function updateScreenSystem() {
     if (queue.isAwaiting()) {
       //player is awaiting to enter
       enable()
-      setScreen(SCREENS.syncing) 
+      setScreen(SCREENS.syncing)
     } else {
       //player not in queue
       disable()

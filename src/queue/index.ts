@@ -57,7 +57,7 @@ export function isActive(): boolean {
   return false
 }
 
-export function isAwaiting( ) {
+export function isAwaiting() {
   return addPlayerRequested
 }
 
