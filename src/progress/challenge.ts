@@ -1,6 +1,7 @@
 import { IChallenge, IScore } from './types'
 import { isScoreMetCondition } from './scoreCheck'
 import * as api from './api'
+import { upsertProgress } from './progress'
 
 export let activeChallenges: IChallenge[]
 
@@ -38,15 +39,6 @@ export async function getActiveChallenges() {
   }
 }
 
-export async function completeChallenge(challengeId: string) {
-  try {
-    await api.postCompleteChallenge(challengeId)
-    await getActiveChallenges()
-  } catch (e) {
-    console.log('completeChallenge. error:', e)
-  }
-}
-
 // check score with all active challenges.
 export function checkIfChallengeComplete(score: IScore): string[] {
   if (!activeChallenges) {
@@ -73,8 +65,11 @@ export function checkIfChallengeComplete(score: IScore): string[] {
         challengeData
       )
 
-      void completeChallenge(challengeId)
+      void upsertProgress(score)
+      void getActiveChallenges()
+
       challengeIdCompleted.push(challengeId)
+      break
     }
   }
   return challengeIdCompleted
