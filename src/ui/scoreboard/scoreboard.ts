@@ -7,6 +7,7 @@ import { timeStringFromMs } from '../utilities'
 import { Column, HeaderRow, NAME_START, PLACEMENT_START, SCOREBOARD_VALUE_TYPE } from './columnData'
 import { getSDK } from '../../sdk'
 import { queue } from '../..'
+import { GAME_SERVER } from '../../config'
 
 type sortOrder = 'asc' | 'desc'
 
@@ -324,15 +325,8 @@ export class ScoreBoard {
 
   async getScores() {
     const { config } = getSDK()
-    const GAME_ID = config.gameId ?? '5728b531-4760-4647-a843-d164283dae6d'
+    const GAME_ID = config.gameId
 
-    let urlEnding = 'org'
-    if (config.environment === 'dev') {
-      urlEnding = 'zone'
-    }
-    if (config.environment === 'prd') {
-      urlEnding = 'org'
-    }
     // empty string will sort by level (default server setting)
     let sortString = ''
 
@@ -368,15 +362,7 @@ export class ScoreBoard {
       }
     }
 
-    const url =
-      'https://exploration-games.decentraland.' +
-      urlEnding +
-      '/api/games/' +
-      GAME_ID +
-      '/leaderboard?sort=' +
-      sortString +
-      '&direction=' +
-      sorDirString
+    const url = GAME_SERVER + '/api/games/' + GAME_ID + '/leaderboard?sort=' + sortString + '&direction=' + sorDirString
 
     try {
       const response = await fetch(url)
