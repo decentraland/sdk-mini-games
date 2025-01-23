@@ -53,18 +53,6 @@ export async function getGameChallenges(): Promise<IChallenge[] | undefined> {
   }
 }
 
-export async function postCompleteChallenge(challengeId: string) {
-  //{{host}}/api/challenges/:id
-  const url = `${GAME_SERVER}/api/challenges/${challengeId}`
-  await signedFetch({
-    url: url,
-    init: {
-      method: 'POST',
-      headers: {}
-    }
-  })
-}
-
 export async function updateProgress(score: IScore, userId: string) {
   const { config, players } = getSDK()
 
