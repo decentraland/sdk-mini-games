@@ -6,6 +6,7 @@ import { getSDK } from '../sdk'
 
 export class Timer3D {
   root: Entity
+  scaleRoot: Entity
   seconds: Counter3D
   minutes?: Counter3D
   dots: Entity
@@ -25,10 +26,15 @@ export class Timer3D {
     this.root = engine.addEntity()
     Transform.create(this.root, transform)
 
+    this.scaleRoot = engine.addEntity()
+    Transform.create(this.scaleRoot, {
+      parent: this.root
+    })
+
     this.seconds = new Counter3D(
       {
         position: Vector3.create(0, 0, 0),
-        parent: this.root
+        parent: this.scaleRoot
       },
       2,
       spacing,
@@ -43,7 +49,7 @@ export class Timer3D {
       this.minutes = new Counter3D(
         {
           position: Vector3.create(2 * spacing + 0.5, 0, 0),
-          parent: this.root
+          parent: this.scaleRoot
         },
         2,
         spacing,
@@ -52,7 +58,7 @@ export class Timer3D {
       )
       this.minutes.setNumber(0)
       Transform.createOrReplace(this.dots, {
-        parent: this.root,
+        parent: this.scaleRoot,
         position: Vector3.create(2 * spacing - 0.85, 0, 0),
         scale: Vector3.create(1.7, 1.7, 1.7)
       })
@@ -60,8 +66,8 @@ export class Timer3D {
     }
 
     engine.addSystem(() => {
-      if (tweenSystem.tweenCompleted(this.root)) {
-        Tween.deleteFrom(this.root)
+      if (tweenSystem.tweenCompleted(this.scaleRoot)) {
+        Tween.deleteFrom(this.scaleRoot)
       }
     })
   }
@@ -93,11 +99,11 @@ export class Timer3D {
     this.seconds.setNumber(seconds)
 
     if (secondsChanged) {
-      Tween.createOrReplace(this.root, {
+      Tween.createOrReplace(this.scaleRoot, {
         duration: 400,
         currentTime: 0,
         easingFunction: EasingFunction.EF_EASEOUTELASTIC,
-        mode: Tween.Mode.Scale({ start: Vector3.Zero(), end: Transform.get(this.root).scale })
+        mode: Tween.Mode.Scale({ start: Vector3.Zero(), end: Vector3.One() })
       })
     }
   }
