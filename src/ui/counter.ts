@@ -75,7 +75,7 @@ export class Counter3D {
       syncEntity(
         numberEntity,
         [Transform.componentId, GltfContainer.componentId, VisibilityComponent.componentId],
-        this.id * 20000 + i
+        this.id + i
       )
     }
   }

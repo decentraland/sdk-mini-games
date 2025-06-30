@@ -33,7 +33,7 @@ export class Timer3D {
       2,
       spacing,
       paddingWithZeroes,
-      id * 100
+      id
     )
     this.seconds.setNumber(0)
     this.dots = engine.addEntity()
@@ -48,7 +48,7 @@ export class Timer3D {
         2,
         spacing,
         paddingWithZeroes,
-        id * 100 + 1
+        id + 1
       )
       this.minutes.setNumber(0)
       Transform.createOrReplace(this.dots, {
