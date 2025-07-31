@@ -2,17 +2,34 @@ import { IChallenge, IScore } from './types'
 import { isScoreMetCondition } from './scoreCheck'
 import * as api from './api'
 import { upsertProgress } from './progress'
+import { utilities } from '..'
+import { Vector3 } from '@dcl/sdk/math'
+import { getSDK } from '../sdk'
 
 export let activeChallenges: IChallenge[]
 
-const fetchInterval = 10 //second
+const fetchInterval = 30 //second
+let pendingInitCheck = true
 let intervalCount = 0
+
 export function getActiveChallengesSystem(dt: number) {
   intervalCount -= dt
   if (intervalCount > 0) return
-
   intervalCount = fetchInterval
-  void getActiveChallenges()
+
+  const {
+    engine,
+    components: { Transform }
+  } = getSDK()
+
+  const playerTransform = Transform.get(engine.PlayerEntity)
+  if (
+    pendingInitCheck ||
+    utilities.isVectorInsideArea(playerTransform.position, Vector3.create(0, 0, 0), Vector3.create(16, 0, 16))
+  ) {
+    pendingInitCheck = false
+    void getActiveChallenges()
+  }
 }
 
 export async function getActiveChallenges() {
