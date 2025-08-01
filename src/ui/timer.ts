@@ -48,7 +48,7 @@ export class Timer3D {
         2,
         spacing,
         paddingWithZeroes,
-        id + 1
+        id + 2
       )
       this.minutes.setNumber(0)
       Transform.createOrReplace(this.dots, {
