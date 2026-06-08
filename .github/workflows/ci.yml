@@ -15,9 +15,9 @@ jobs:
       contents: write # to be able to publish a GitHub release
       id-token: write # to enable use of OIDC for npm provenance
     steps:
-      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # @v4.3.0
+      - uses: actions/checkout@v6
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           node-version: 24
       - name: install

@@ -25,6 +25,7 @@
     "@dcl/sdk": "^7.9.2"
   },
   "repository": {
-    "url": "https://github.com/decentraland/sdk-mini-games"
+    "type": "git",
+    "url": "git+https://github.com/decentraland/sdk-mini-games.git"
   }
 }
